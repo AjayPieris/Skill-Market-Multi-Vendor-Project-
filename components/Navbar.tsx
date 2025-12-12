@@ -14,7 +14,7 @@ export default function Navbar() {
         </Link>
 
         {/* NAVIGATION LINKS (Hidden on small screens) */}
-        <div className="hidden md:flex gap-6 text-sm font-medium text-gray-600">
+        <div className="hidden md:!flex gap-6 text-sm font-medium text-gray-600">
           <Link href="/search" className="hover:text-blue-600 transition">
             Find Talent
           </Link>

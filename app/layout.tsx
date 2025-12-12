@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import { ClerkProvider } from "@clerk/nextjs";
+import "@uploadthing/react/styles.css";
 
 
 const outfit = Outfit({ subsets: ["latin"] });
