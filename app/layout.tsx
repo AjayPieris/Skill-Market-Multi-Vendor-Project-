@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar"; // <--- 1. Import it
+import Navbar from "@/components/Navbar"; 
+import { ClerkProvider } from "@clerk/nextjs";
+
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -16,6 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+  <ClerkProvider>
     <html lang="en">
       <body className={`${outfit.className} antialiased`}>
         {/* 2. Add it here! */}
@@ -24,5 +27,6 @@ export default function RootLayout({
         <main>{children}</main>
       </body>
     </html>
+  </ClerkProvider>
   );
 }
