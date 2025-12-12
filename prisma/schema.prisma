@@ -1,0 +1,41 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 1. THE USER (Can be Admin, Vendor, or Customer)
+model User {
+  id        String   @id @default(uuid()) // Unique ID like "a1b2-c3d4"
+  email     String   @unique
+  clerkId   String   @unique // We will link this to authentication later
+  name      String?
+  bio       String?  // For vendors (e.g. "I am an expert designer")
+  image     String?  // Profile picture URL
+  
+  role      String   @default("customer") // "admin", "vendor", or "customer"
+
+  gigs      Gig[]    // A User (Vendor) can own many Gigs
+  createdAt DateTime @default(now())
+}
+
+// 2. THE GIG (The Service being sold)
+model Gig {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Int
+  imageUrl    String   // Thumbnail for the gig
+  category    String   // e.g. "Design", "Web Dev"
+
+  // RELATIONSHIP: A Gig belongs to ONE Vendor (User)
+  vendorId    String
+  vendor      User     @relation(fields: [vendorId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
