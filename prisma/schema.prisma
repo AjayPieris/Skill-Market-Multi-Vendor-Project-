@@ -20,6 +20,7 @@ model User {
   role      String   @default("customer") // "admin", "vendor", or "customer"
 
   gigs      Gig[]    // A User (Vendor) can own many Gigs
+  orders    Order[]  // A User (Customer) can have many Orders
   createdAt DateTime @default(now())
 }
 
@@ -36,6 +37,25 @@ model Gig {
   vendorId    String
   vendor      User     @relation(fields: [vendorId], references: [id])
 
+  orders      Order[]  // A Gig can have many Orders
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// NEW: The Order Model
+model Order {
+  id        String   @id @default(uuid())
+  price     Int      // Price paid at that time
+  status    String   @default("pending") // pending, completed
+  
+  // Who bought it?
+  buyerId   String
+  buyer     User     @relation(fields: [buyerId], references: [id])
+
+  // What did they buy?
+  gigId     String
+  gig       Gig      @relation(fields: [gigId], references: [id])
+
+  createdAt DateTime @default(now())
 }
