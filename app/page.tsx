@@ -23,8 +23,12 @@ export default async function Home() {
           Get work done securely with our multi-vendor marketplace.
         </p>
         <div className="flex justify-center gap-4">
-           <Button size="lg" className="bg-blue-600 hover:bg-blue-700">Find Work</Button>
-           <Button size="lg" variant="outline" className="text-black bg-white">Become a Seller</Button>
+           <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Link href="/search">
+            Find Work</Link></Button>
+           <Button size="lg" variant="outline" className="text-black bg-white">
+            <Link href="/become-seller">
+            Become a Seller</Link></Button>
         </div>
       </section>
 
@@ -35,7 +39,7 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {gigs.map((gig) => (
             <Link href={`/gigs/${gig.id}`} key={gig.id}>
-              <Card className="hover:shadow-lg transition cursor-pointer h-full">
+              <Card className="hover:shadow-lg transition cursor-pointer h-full ">
                 {/* Image Placeholder */}
                 <div className="h-48 w-full bg-gray-200 relative overflow-hidden rounded-t-lg">
                    {/* We use a standard img tag for simplicity for now */}
