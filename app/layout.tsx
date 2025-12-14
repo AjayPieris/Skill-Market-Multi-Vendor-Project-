@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
+import Footer from "@/components/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@uploadthing/react/styles.css";
 
@@ -26,6 +27,8 @@ export default function RootLayout({
         <Navbar />
 
         <main>{children}</main>
+        {/* 3. Footer too */}
+        <Footer />
       </body>
     </html>
   </ClerkProvider>
