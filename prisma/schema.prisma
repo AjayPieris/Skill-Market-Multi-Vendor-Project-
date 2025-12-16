@@ -22,6 +22,10 @@ model User {
   gigs      Gig[]    // A User (Vendor) can own many Gigs
   orders    Order[]  // A User (Customer) can have many Orders
   createdAt DateTime @default(now())
+
+  conversationsInitiated Conversation[] @relation("UserOne")
+  conversationsReceived  Conversation[] @relation("UserTwo")
+  messages               Message[]
 }
 
 // 2. THE GIG (The Service being sold)
@@ -58,4 +62,36 @@ model Order {
   gig       Gig      @relation(fields: [gigId], references: [id])
 
   createdAt DateTime @default(now())
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  
+  userOneId String
+  userOne   User     @relation("UserOne", fields: [userOneId], references: [id])
+  
+  userTwoId String
+  userTwo   User     @relation("UserTwo", fields: [userTwoId], references: [id])
+
+  messages  Message[]
+
+  // Ensures these two people only have ONE conversation together
+  @@unique([userOneId, userTwoId]) 
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String
+  imageUrl       String?
+  
+  // NEW FIELD:
+  isRead         Boolean      @default(false)
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+
+  createdAt      DateTime     @default(now())
 }

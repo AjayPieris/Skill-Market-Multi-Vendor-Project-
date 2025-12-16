@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Star } from "lucide-react";
 import { placeOrderAction } from "@/app/actions/order";
+import { startConversationAction } from "@/app/actions/conversation";
 
 export default async function GigDetailPage({
   params,
@@ -90,9 +91,16 @@ export default async function GigDetailPage({
                 Continue (${gig.price})
               </Button>
             </form>
-            <Button variant="outline" className="w-full mt-3">
-              Contact Seller
-            </Button>
+            <form
+              action={async () => {
+                "use server";
+                await startConversationAction(gig.vendorId);
+              }}
+            >
+              <Button variant="outline" className="w-full mt-3" type="submit">
+                Contact Seller
+              </Button>
+            </form>
           </div>
         </div>
       </div>
