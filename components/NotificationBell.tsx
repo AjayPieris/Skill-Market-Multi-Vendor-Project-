@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { markConversationReadAction } from "@/app/actions/notification";
 
 interface NotificationBellProps {
   currentUserId: string;
@@ -31,8 +30,16 @@ export default function NotificationBell({
 
   const handleNotificationClick = async (conversationId: string) => {
     try {
-      const result = await markConversationReadAction(conversationId);
-      setUnreadCount(result.unreadCount);
+      const res = await fetch("/api/notifications/mark-conversation-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId }),
+      });
+
+      if (res.ok) {
+        const result = (await res.json()) as { unreadCount: number };
+        setUnreadCount(result.unreadCount);
+      }
       setNewNotifications((prev) =>
         prev.filter((notif) => notif.conversationId !== conversationId)
       );

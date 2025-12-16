@@ -38,8 +38,8 @@ export default async function ConversationPage({
       : conversation.userOne;
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-4xl">
-      <div className="mb-6 flex items-center gap-3 border-b pb-4">
+    <div className="container mx-auto px-4 max-w-4xl h-[calc(100dvh-4rem)] flex flex-col py-4">
+      <div className="mb-4 flex items-center gap-3 border-b pb-4">
         <img
           src={otherUser.image || ""}
           className="w-10 h-10 rounded-full border"
@@ -48,11 +48,16 @@ export default async function ConversationPage({
       </div>
 
       {/* Load the Client Component */}
-      <ChatBox
-        conversationId={conversation.id}
-        currentUserId={dbUser.id}
-        initialMessages={conversation.messages}
-      />
+      <div className="flex-1 min-h-0">
+        <ChatBox
+          conversationId={conversation.id}
+          currentUserId={dbUser.id}
+          otherUserId={otherUser.id}
+          otherUserName={otherUser.name}
+          otherUserImage={otherUser.image}
+          initialMessages={conversation.messages}
+        />
+      </div>
     </div>
   );
 }
