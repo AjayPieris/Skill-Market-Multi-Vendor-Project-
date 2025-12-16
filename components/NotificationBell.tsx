@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Pusher from "pusher-js";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,62 @@ interface NotificationBellProps {
   initialUnreadCount: number; // We will fetch this from DB initially
 }
 
+type NotificationItem = {
+  conversationId: string;
+  senderName: string;
+  senderImage?: string | null;
+  content: string;
+  createdAt?: string | Date;
+};
+
 export default function NotificationBell({
   currentUserId,
   initialUnreadCount,
 }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
-  const [newNotifications, setNewNotifications] = useState<any[]>([]); // Store temporary list of new alerts
+  const [newNotifications, setNewNotifications] = useState<NotificationItem[]>(
+    []
+  ); // Store list of alerts
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const notificationByConversationId = useMemo(() => {
+    const map = new Map<string, NotificationItem>();
+    for (const n of newNotifications) {
+      map.set(n.conversationId, n);
+    }
+    return map;
+  }, [newNotifications]);
+
+  const loadUnreadFromDb = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/notifications/unread", {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+
+      const data = (await res.json()) as {
+        unreadCount: number;
+        items: NotificationItem[];
+      };
+
+      setUnreadCount(data.unreadCount ?? 0);
+
+      setNewNotifications((prev) => {
+        const merged = [...(data.items ?? [])];
+        for (const item of prev) {
+          if (!merged.some((x) => x.conversationId === item.conversationId)) {
+            merged.push(item);
+          }
+        }
+        return merged;
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNotificationClick = async (conversationId: string) => {
     try {
@@ -63,7 +112,9 @@ export default function NotificationBell({
     channel.bind("new-notification", (data: any) => {
       console.log("DING! New notification:", data);
       setUnreadCount((prev) => prev + 1);
-      setNewNotifications((prev) => [data, ...prev]); // Add to top of list
+      if (data?.conversationId) {
+        setNewNotifications((prev) => [data as NotificationItem, ...prev]);
+      }
     });
 
     return () => {
@@ -71,8 +122,18 @@ export default function NotificationBell({
     };
   }, [currentUserId]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // If the badge is coming from DB (e.g. messages arrived while signed out),
+    // fetch unread items so the dropdown isn't empty.
+    if (unreadCount > 0) {
+      void loadUnreadFromDb();
+    }
+  }, [isOpen]);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5 text-gray-600" />
@@ -94,6 +155,8 @@ export default function NotificationBell({
           <div className="p-4 text-sm text-gray-500 text-center">
             No new messages.
           </div>
+        ) : isLoading && newNotifications.length === 0 ? (
+          <div className="p-4 text-sm text-gray-500 text-center">Loading…</div>
         ) : (
           <>
             {/* Show Live Notifications */}
@@ -104,8 +167,14 @@ export default function NotificationBell({
                 onClick={() => handleNotificationClick(notif.conversationId)}
               >
                 <div className="flex flex-col gap-1">
-                  <span className="font-bold text-xs">{notif.senderName}</span>
-                  <span className="text-xs text-gray-500">{notif.content}</span>
+                  <span className="font-bold text-xs">
+                    {notificationByConversationId.get(notif.conversationId)
+                      ?.senderName ?? notif.senderName}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {notificationByConversationId.get(notif.conversationId)
+                      ?.content ?? notif.content}
+                  </span>
                 </div>
               </DropdownMenuItem>
             ))}
