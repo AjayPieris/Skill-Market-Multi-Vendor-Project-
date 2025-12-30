@@ -35,3 +35,35 @@ export async function createGigAction(formData: FormData, imageUrl: string) {
 
   // Revalidate? (Optional, Next.js usually handles this)
 }
+
+export async function updateGigAction(
+  gigId: string,
+  formData: FormData,
+  imageUrl?: string
+) {
+  const user = await currentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const category = formData.get("category") as string;
+  const price = Number(formData.get("price"));
+
+  const dbUser = await db.user.findUnique({ where: { clerkId: user.id } });
+  if (!dbUser) throw new Error("User not found in DB");
+
+  const gig = await db.gig.findUnique({ where: { id: gigId } });
+  if (!gig) throw new Error("Gig not found");
+  if (gig.vendorId !== dbUser.id) throw new Error("Forbidden");
+
+  await db.gig.update({
+    where: { id: gigId },
+    data: {
+      title,
+      description,
+      category,
+      price,
+      ...(imageUrl ? { imageUrl } : {}),
+    },
+  });
+}

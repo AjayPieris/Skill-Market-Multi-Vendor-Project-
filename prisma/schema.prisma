@@ -19,6 +19,10 @@ model User {
   
   role      String   @default("customer") // "admin", "vendor", or "customer"
 
+  // Following / Followers
+  following Follow[] @relation("FollowFollower")
+  followers Follow[] @relation("FollowFollowing")
+
   gigs      Gig[]    // A User (Vendor) can own many Gigs
   orders    Order[]  // A User (Customer) can have many Orders
   createdAt DateTime @default(now())
@@ -26,6 +30,21 @@ model User {
   conversationsInitiated Conversation[] @relation("UserOne")
   conversationsReceived  Conversation[] @relation("UserTwo")
   messages               Message[]
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("FollowFollower", fields: [followerId], references: [id])
+
+  followingId String
+  following   User     @relation("FollowFollowing", fields: [followingId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 // 2. THE GIG (The Service being sold)

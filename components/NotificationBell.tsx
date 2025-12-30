@@ -27,6 +27,9 @@ type NotificationItem = {
   content: string;
   createdAt?: string | Date;
 };
+type NewNotificationPayload = Partial<NotificationItem> & {
+  conversationId?: string;
+};
 
 export default function NotificationBell({
   currentUserId,
@@ -109,11 +112,22 @@ export default function NotificationBell({
     const channel = pusher.subscribe(currentUserId);
 
     // 3. Listen for "new-notification"
-    channel.bind("new-notification", (data: any) => {
-      console.log("DING! New notification:", data);
+    channel.bind("new-notification", (data: unknown) => {
+      const payload = (data ?? null) as NewNotificationPayload | null;
       setUnreadCount((prev) => prev + 1);
-      if (data?.conversationId) {
-        setNewNotifications((prev) => [data as NotificationItem, ...prev]);
+      if (
+        payload?.conversationId &&
+        typeof payload.conversationId === "string"
+      ) {
+        const item: NotificationItem = {
+          conversationId: payload.conversationId,
+          senderName: payload.senderName ?? "New message",
+          senderImage: payload.senderImage ?? null,
+          content: payload.content ?? "",
+          createdAt: payload.createdAt,
+        };
+
+        setNewNotifications((prev) => [item, ...prev]);
       }
     });
 

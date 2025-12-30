@@ -11,7 +11,7 @@ interface MessageProps {
   content: string;
   senderId: string;
   sender: { name: string | null; image: string | null };
-  createdAt: Date;
+  createdAt: Date | string;
   isRead: boolean; // <--- Make sure this is included
 }
 
@@ -34,15 +34,16 @@ export default function ChatBox({
 }: ChatBoxProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState("");
-  const [hydrated, setHydrated] = useState(false);
   const [lastSeenAt, setLastSeenAt] = useState<string | null>(null);
   const [isOtherOnline, setIsOtherOnline] = useState(false);
   const otherLastPingAtMsRef = useRef<number>(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  type IncomingMessage = Omit<MessageProps, "createdAt"> & {
+    createdAt: string | Date;
+  };
+  type MessagesSeenPayload = { seenBy?: string; seenAt?: string };
+  type PresencePingPayload = { userId?: string; at?: string };
 
   const markRead = async () => {
     try {
@@ -94,11 +95,17 @@ export default function ChatBox({
     }, 2_000);
 
     // 2. Listen for NEW messages
-    channel.bind("new-message", (data: any) => {
-      setMessages((current) => [...current, data]);
+    channel.bind("new-message", (data: unknown) => {
+      const msg = data as IncomingMessage;
+      if (!msg || typeof msg !== "object") return;
+      if (typeof msg.id !== "string" || typeof msg.senderId !== "string")
+        return;
+      if (typeof msg.content !== "string") return;
+
+      setMessages((current) => [...current, msg]);
 
       // If I'm looking at the chat and the other user sends a message, mark it read.
-      if (data.senderId !== currentUserId) {
+      if (msg.senderId !== currentUserId) {
         startTransition(() => {
           void markRead();
         });
@@ -112,7 +119,8 @@ export default function ChatBox({
     });
 
     // 3. Listen for "SEEN" event (Blue ticks + Last seen)
-    channel.bind("messages-seen", (payload: any) => {
+    channel.bind("messages-seen", (payload: unknown) => {
+      const data = payload as MessagesSeenPayload;
       setMessages((current) =>
         current.map((msg) => ({
           ...msg,
@@ -122,10 +130,10 @@ export default function ChatBox({
       );
 
       // If the OTHER user is the one who saw messages, update Last seen.
-      if (payload?.seenBy && payload.seenBy === otherUserId) {
+      if (data?.seenBy && data.seenBy === otherUserId) {
         const seenAt =
-          typeof payload.seenAt === "string"
-            ? payload.seenAt
+          typeof data.seenAt === "string"
+            ? data.seenAt
             : new Date().toISOString();
         setLastSeenAt(seenAt);
 
@@ -137,11 +145,12 @@ export default function ChatBox({
     });
 
     // 4. Listen for presence pings (Online / Last seen)
-    channel.bind("presence-ping", (payload: any) => {
-      if (!payload || payload.userId !== otherUserId) return;
+    channel.bind("presence-ping", (payload: unknown) => {
+      const data = payload as PresencePingPayload;
+      if (!data || data.userId !== otherUserId) return;
 
       const at =
-        typeof payload.at === "string" ? payload.at : new Date().toISOString();
+        typeof data.at === "string" ? data.at : new Date().toISOString();
       const ms = Date.parse(at);
       otherLastPingAtMsRef.current = Number.isNaN(ms) ? Date.now() : ms;
       setIsOtherOnline(true);
@@ -194,11 +203,13 @@ export default function ChatBox({
             {otherUserName || "Chat"}
           </div>
           <div className="text-xs text-gray-500">
-            {isOtherOnline
-              ? "Online"
-              : lastSeenAt && hydrated
-              ? `Last seen ${formatTime(lastSeenAt)}`
-              : ""}
+            <span suppressHydrationWarning>
+              {isOtherOnline
+                ? "Online"
+                : lastSeenAt
+                ? `Last seen ${formatTime(lastSeenAt)}`
+                : ""}
+            </span>
           </div>
         </div>
       </div>
@@ -238,8 +249,9 @@ export default function ChatBox({
                     className={`text-[10px] ${
                       isMe ? "text-blue-200" : "text-gray-500"
                     }`}
+                    suppressHydrationWarning
                   >
-                    {hydrated ? formatTime(msg.createdAt) : ""}
+                    {formatTime(msg.createdAt)}
                   </span>
 
                   {isMe && (
