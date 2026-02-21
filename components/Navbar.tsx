@@ -5,6 +5,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { ShieldCheck } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import NavChatWidget from "@/components/NavChatWidget";
 
 export default async function Navbar() {
   const user = await currentUser();
@@ -79,13 +80,16 @@ export default async function Navbar() {
               </Link>
             )}
 
-            {/* 2. Notification Bell (Only works if we found the DB user) */}
+            {/* 2. Chat Widget — only message notifications */}
             {dbUserId && (
-              <NotificationBell
+              <NavChatWidget
                 currentUserId={dbUserId}
                 initialUnreadCount={unreadCount}
               />
             )}
+
+            {/* 3. Notification Bell — orders, follows, and other activity */}
+            {dbUserId && <NotificationBell currentUserId={dbUserId} />}
 
             {/* 3. Dashboard & Profile */}
             <Link href="/dashboard">

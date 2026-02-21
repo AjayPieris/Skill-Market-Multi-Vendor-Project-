@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EditProfileSheet from "./edit-profile-sheet";
 import DashboardConnectionsSheet from "./connections-sheet";
+import GigCardWithDelete from "@/components/GigCardWithDelete";
 
 function professionalLabel(bio: string | null) {
   const professional = (bio ?? "").trim();
@@ -21,7 +21,7 @@ export default async function ProfilePage() {
   if (!dbUser) return redirect("/dashboard");
 
   const [postsCount, followers, following, gigs] = await Promise.all([
-    db.gig.count({ where: { vendorId: dbUser.id } }),
+    db.gig.count({ where: { vendorId: dbUser.id, deletedAt: null } }),
     db.follow.findMany({
       where: { followingId: dbUser.id },
       orderBy: { createdAt: "desc" },
@@ -37,7 +37,7 @@ export default async function ProfilePage() {
       },
     }),
     db.gig.findMany({
-      where: { vendorId: dbUser.id },
+      where: { vendorId: dbUser.id, deletedAt: null },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -62,7 +62,7 @@ export default async function ProfilePage() {
         },
         select: { followingId: true },
       })
-    ).map((r) => r.followingId)
+    ).map((r) => r.followingId),
   );
 
   const followersForSheet = followerUsers.map((u) => ({
@@ -134,42 +134,14 @@ export default async function ProfilePage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {gigs.map((gig) => (
-                <div key={gig.id} className="border rounded-lg overflow-hidden">
-                  <Link href={`/gigs/${gig.id}`} className="block">
-                    <div className="aspect-square bg-muted overflow-hidden">
-                      <img
-                        src={gig.imageUrl}
-                        alt={gig.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </Link>
-
-                  <div className="p-2">
-                    <div className="text-sm font-medium line-clamp-1">
-                      {gig.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground line-clamp-1">
-                      {gig.category} • ${gig.price}
-                    </div>
-
-                    <div className="pt-2 flex items-center gap-2">
-                      <Link href={`/gigs/${gig.id}`} className="inline-block">
-                        <Button variant="outline" size="sm" className="h-8">
-                          View
-                        </Button>
-                      </Link>
-                      <Link
-                        href={`/dashboard/gigs/${gig.id}`}
-                        className="inline-block"
-                      >
-                        <Button size="sm" className="h-8">
-                          Edit
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <GigCardWithDelete
+                  key={gig.id}
+                  id={gig.id}
+                  title={gig.title}
+                  category={gig.category}
+                  price={gig.price}
+                  imageUrl={gig.imageUrl}
+                />
               ))}
             </div>
           )}

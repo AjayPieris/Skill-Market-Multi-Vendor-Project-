@@ -119,7 +119,7 @@ export default function ProfileForm({
         <div
           className={cn(
             "text-sm",
-            status.type === "success" ? "text-emerald-600" : "text-destructive"
+            status.type === "success" ? "text-emerald-600" : "text-destructive",
           )}
         >
           {status.message}

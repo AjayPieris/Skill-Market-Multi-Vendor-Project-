@@ -64,6 +64,7 @@ model Gig {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? // soft delete — null means active
 }
 
 // NEW: The Order Model

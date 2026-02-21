@@ -68,7 +68,7 @@ export default async function SearchPage({
             {/* Responsive grid */}
             {gigs.map(
               (
-                gig // Loop through gigs
+                gig, // Loop through gigs
               ) => (
                 <Link href={`/gigs/${gig.id}`} key={gig.id}>
                   {" "}
@@ -115,7 +115,7 @@ export default async function SearchPage({
                     </CardFooter>
                   </Card>
                 </Link>
-              )
+              ),
             )}
           </div>
         )}

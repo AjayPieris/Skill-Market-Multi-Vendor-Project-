@@ -18,27 +18,18 @@ export default async function VendorLayout({
     return redirect("/sign-in");
   }
 
-  // 2. CHECK DATABASE: Do we have this user?
-  const dbUser = await db.user.findUnique({
+  // 2. Upsert the user — creates if missing, updates image/name if already exists.
+  const ensuredDbUser = await db.user.upsert({
     where: { clerkId: user.id },
+    create: {
+      clerkId: user.id,
+      email: user.emailAddresses[0].emailAddress,
+      name: user.firstName + " " + user.lastName,
+      image: user.imageUrl,
+      role: "vendor",
+    },
+    update: {}, // don't overwrite user-edited fields (name, image, bio)
   });
-
-  // 3. IF NOT: Create them automatically!
-  if (!dbUser) {
-    await db.user.create({
-      data: {
-        clerkId: user.id,
-        email: user.emailAddresses[0].emailAddress,
-        name: user.firstName + " " + user.lastName,
-        image: user.imageUrl,
-        role: "vendor", // By default, anyone visiting dashboard becomes a vendor for now
-      },
-    });
-  }
-
-  const ensuredDbUser = dbUser
-    ? dbUser
-    : await db.user.findUnique({ where: { clerkId: user.id } });
 
   // People who follow ME
   const followerUsers = ensuredDbUser

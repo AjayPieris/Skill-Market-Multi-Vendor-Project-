@@ -74,10 +74,10 @@ export async function POST(req: Request) {
 
     await pusherServer.trigger(body.conversationId, "new-message", newMessage);
 
-    await pusherServer.trigger(receiver.id, "new-notification", {
+    await pusherServer.trigger(receiver.id, "new-chat-notification", {
       conversationId: body.conversationId,
       senderName: dbUser.name,
-      content: content.substring(0, 30) + "...",
+      content: content.substring(0, 50),
     });
 
     return NextResponse.json({ message: newMessage });

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { pusherServer } from "@/lib/pusher";
 
 export async function GET() {
   const user = await currentUser();
@@ -69,6 +70,14 @@ export async function POST(req: Request) {
       followingId: targetUserId,
     },
     update: {},
+  });
+
+  // Notify the person being followed
+  await pusherServer.trigger(targetUserId, "new-activity-notification", {
+    type: "follow",
+    actorName: dbUser.name ?? "Someone",
+    actorImage: dbUser.image ?? null,
+    message: `${dbUser.name ?? "Someone"} started following you`,
   });
 
   return NextResponse.json({ ok: true });

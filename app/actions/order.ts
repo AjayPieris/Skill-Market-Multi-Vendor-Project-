@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { pusherServer } from "@/lib/pusher";
 
 export async function placeOrderAction(gigId: string) {
   const user = await currentUser();
@@ -25,7 +26,8 @@ export async function placeOrderAction(gigId: string) {
 
   // 3. Find the Gig to get the price
   const gig = await db.gig.findUnique({
-    where: { id: gigId }
+    where: { id: gigId },
+    include: { vendor: true },
   });
 
   if (!gig) throw new Error("Gig not found");
@@ -40,6 +42,15 @@ export async function placeOrderAction(gigId: string) {
     },
   });
 
-  // 5. Redirect to a Thank You page
+  // 5. Notify the vendor about the new order
+  await pusherServer.trigger(gig.vendor.id, "new-activity-notification", {
+    type: "order",
+    actorName: dbUser.name ?? "Someone",
+    actorImage: dbUser.image ?? null,
+    message: `${dbUser.name ?? "Someone"} ordered your gig "${gig.title}"`,
+    gigTitle: gig.title,
+  });
+
+  // 6. Redirect to a Thank You page
   redirect("/orders/success");
 }
