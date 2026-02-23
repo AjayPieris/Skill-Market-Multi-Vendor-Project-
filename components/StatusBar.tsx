@@ -10,12 +10,19 @@ import {
   Clapperboard,
   Eye,
   Trash2,
+  Pause,
+  Play,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   createStatusAction,
   markStatusViewedAction,
   deleteStatusAction,
+  replyToStatusAction,
+  getStatusViewersAction,
 } from "@/app/actions/status";
+import { Send } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -68,6 +75,23 @@ export default function StatusBar({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Pause / mute controls
+  const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(true);
+
+  // Reply state (viewer → owner DM)
+  const [replyText, setReplyText] = useState("");
+  const [replySending, setReplySending] = useState(false);
+  const [replySent, setReplySent] = useState(false);
+
+  // Viewers panel state (owner only)
+  const [viewersOpen, setViewersOpen] = useState(false);
+  const [viewers, setViewers] = useState<
+    { id: string; name: string | null; image: string | null }[]
+  >([]);
+  const [viewersLoading, setViewersLoading] = useState(false);
 
   const { startUpload } = useUploadThing("statusMedia");
 
@@ -124,6 +148,10 @@ export default function StatusBar({
   }, [feed, activeUserIdx, activeStatusIdx]);
 
   const goBack = () => {
+    setReplyText("");
+    setReplySent(false);
+    setViewersOpen(false);
+    setViewers([]);
     if (activeStatusIdx > 0) {
       setActiveStatusIdx((i) => i - 1);
       setProgress(0);
@@ -143,8 +171,11 @@ export default function StatusBar({
   useEffect(() => {
     if (!viewerOpen || !activeStatus) return;
     if (activeStatus.mediaType === "video") return;
+    if (paused) {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      return;
+    }
 
-    setProgress(0);
     if (progressTimerRef.current) clearInterval(progressTimerRef.current);
 
     progressTimerRef.current = setInterval(() => {
@@ -162,12 +193,38 @@ export default function StatusBar({
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewerOpen, activeUserIdx, activeStatusIdx]);
+  }, [viewerOpen, activeUserIdx, activeStatusIdx, paused]);
+
+  // Sync video element play/pause and mute with state
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (paused) {
+      v.pause();
+    } else {
+      v.play().catch(() => {});
+    }
+  }, [paused]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) v.muted = muted;
+  }, [muted]);
+
+  // Reset pause/mute when navigating to a new story
+  useEffect(() => {
+    setPaused(false);
+  }, [activeUserIdx, activeStatusIdx]);
 
   const openViewer = (userIdx: number, statusIdx = 0) => {
     setActiveUserIdx(userIdx);
     setActiveStatusIdx(statusIdx);
     setProgress(0);
+    setReplyText("");
+    setReplySent(false);
+    setViewersOpen(false);
+    setViewers([]);
+    setPaused(false);
     setViewerOpen(true);
     setFeedOpen(false);
 
@@ -230,6 +287,38 @@ export default function StatusBar({
     fetchFeed();
   };
 
+  // Send a reply as a DM to the status owner
+  const handleReply = async () => {
+    if (!replyText.trim() || !activeStatus) return;
+    setReplySending(true);
+    try {
+      await replyToStatusAction(activeStatus.id, replyText.trim());
+      setReplyText("");
+      setReplySent(true);
+      setTimeout(() => setReplySent(false), 3000);
+    } catch (e) {
+      console.error("Reply failed", e);
+    } finally {
+      setReplySending(false);
+    }
+  };
+
+  // Load the viewer list for the current owner-status
+  const handleOpenViewers = async () => {
+    if (!activeStatus) return;
+    setPaused(true); // pause story while browsing viewers
+    setViewersOpen(true);
+    setViewersLoading(true);
+    try {
+      const list = await getStatusViewersAction(activeStatus.id);
+      setViewers(list);
+    } catch (e) {
+      console.error("Failed to load viewers", e);
+    } finally {
+      setViewersLoading(false);
+    }
+  };
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -249,9 +338,9 @@ export default function StatusBar({
       {/* ── FEED DIALOG ── */}
       <Dialog.Root open={feedOpen} onOpenChange={setFeedOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-60" />
           <Dialog.Content
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6 outline-none"
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-60 bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6 outline-none"
             aria-describedby={undefined}
           >
             <div className="flex items-center justify-between mb-4">
@@ -301,7 +390,7 @@ export default function StatusBar({
                         <div
                           className={`w-16 h-16 rounded-full p-0.5 ${
                             u.statuses.length > 0
-                              ? "bg-gradient-to-tr from-blue-400 to-purple-500"
+                              ? "bg-linear-to-tr from-blue-400 to-purple-500"
                               : "bg-gray-300"
                           }`}
                         >
@@ -325,7 +414,7 @@ export default function StatusBar({
                           <Plus className="h-3 w-3" />
                         </span>
                       </button>
-                      <span className="text-xs text-gray-500 max-w-[64px] truncate text-center">
+                      <span className="text-xs text-gray-500 max-w-16 truncate text-center">
                         Your Story
                       </span>
                     </div>
@@ -346,7 +435,7 @@ export default function StatusBar({
                         <div
                           className={`w-16 h-16 rounded-full p-0.5 ${
                             u.hasUnseen
-                              ? "bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600"
+                              ? "bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600"
                               : "bg-gray-300"
                           }`}
                         >
@@ -366,7 +455,7 @@ export default function StatusBar({
                           </div>
                         </div>
                       </button>
-                      <span className="text-xs text-gray-500 max-w-[64px] truncate text-center">
+                      <span className="text-xs text-gray-500 max-w-16 truncate text-center">
                         {u.name}
                       </span>
                     </div>
@@ -388,9 +477,9 @@ export default function StatusBar({
       {/* ── STORY VIEWER ── */}
       <Dialog.Root open={viewerOpen} onOpenChange={setViewerOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/90 z-[70]" />
+          <Dialog.Overlay className="fixed inset-0 bg-black/90 z-70" />
           <Dialog.Content
-            className="fixed inset-0 z-[70] flex items-center justify-center outline-none"
+            className="fixed inset-0 z-70 flex items-center justify-center outline-none"
             aria-describedby={undefined}
           >
             <Dialog.Title className="sr-only">Story Viewer</Dialog.Title>
@@ -454,7 +543,33 @@ export default function StatusBar({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {/* Mute / Unmute — video only */}
+                    {activeStatus.mediaType === "video" && (
+                      <button
+                        onClick={() => setMuted((m) => !m)}
+                        className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition"
+                        title={muted ? "Unmute" : "Mute"}
+                      >
+                        {muted ? (
+                          <VolumeX className="h-4 w-4" />
+                        ) : (
+                          <Volume2 className="h-4 w-4" />
+                        )}
+                      </button>
+                    )}
+                    {/* Pause / Play */}
+                    <button
+                      onClick={() => setPaused((p) => !p)}
+                      className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition"
+                      title={paused ? "Resume" : "Pause"}
+                    >
+                      {paused ? (
+                        <Play className="h-4 w-4" />
+                      ) : (
+                        <Pause className="h-4 w-4" />
+                      )}
+                    </button>
                     {activeUser.isMe && (
                       <button
                         onClick={() => handleDeleteStatus(activeStatus.id)}
@@ -480,11 +595,13 @@ export default function StatusBar({
                   />
                 ) : (
                   <video
+                    ref={videoRef}
                     key={activeStatus.id} // remount for each new status
                     src={activeStatus.mediaUrl}
                     className="w-full h-full object-contain"
                     autoPlay
                     playsInline
+                    muted={muted}
                     onTimeUpdate={(e) => {
                       const v = e.currentTarget;
                       if (v.duration)
@@ -501,11 +618,113 @@ export default function StatusBar({
                   </div>
                 )}
 
-                {/* ── View count (own stories) ── */}
-                {activeUser.isMe && (
-                  <div className="absolute bottom-3 left-4 flex items-center gap-1 text-white/60 text-xs">
-                    <Eye className="h-3.5 w-3.5" />
-                    <span>{activeStatus.viewCount} views</span>
+                {/* ── Bottom actions: viewers panel (owner) or reply input (viewer) ── */}
+                {activeUser.isMe ? (
+                  /* ── OWNER: viewers panel ── */
+                  <div className="absolute bottom-0 left-0 right-0 z-10">
+                    {viewersOpen ? (
+                      <div className="bg-black/80 backdrop-blur-sm rounded-b-2xl p-4 max-h-52 overflow-y-auto">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-white text-xs font-semibold flex items-center gap-1">
+                            <Eye className="h-3.5 w-3.5" />
+                            {activeStatus.viewCount} view
+                            {activeStatus.viewCount !== 1 ? "s" : ""}
+                          </span>
+                          <button
+                            onClick={() => {
+                              setViewersOpen(false);
+                              setPaused(false);
+                            }}
+                            className="text-white/60 hover:text-white text-xs"
+                          >
+                            ✕ Close
+                          </button>
+                        </div>
+                        {viewersLoading ? (
+                          <div className="flex justify-center py-3">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                          </div>
+                        ) : viewers.length === 0 ? (
+                          <p className="text-white/50 text-xs text-center py-2">
+                            No viewers yet
+                          </p>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            {viewers.map((v) => (
+                              <div
+                                key={v.id}
+                                className="flex items-center gap-2"
+                              >
+                                <div className="w-7 h-7 rounded-full overflow-hidden flex-none bg-gray-600">
+                                  {v.image ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                      src={v.image}
+                                      alt={v.name ?? ""}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-white text-xs font-bold">
+                                      {v.name?.[0]?.toUpperCase() ?? "?"}
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="text-white text-xs">
+                                  {v.name ?? "Unknown"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleOpenViewers}
+                        className="w-full flex items-center justify-center gap-1.5 py-3 text-white/70 hover:text-white text-xs font-medium transition"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        {activeStatus.viewCount} view
+                        {activeStatus.viewCount !== 1 ? "s" : ""} — tap to see
+                        who
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  /* ── VIEWER: reply input ── */
+                  <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+                    {replySent ? (
+                      <div className="bg-green-500/80 backdrop-blur-sm rounded-xl px-4 py-3 text-white text-sm text-center font-medium">
+                        ✓ Reply sent to {activeUser.name}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2">
+                        <input
+                          type="text"
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleReply()}
+                          onFocus={() => setPaused(true)}
+                          onBlur={() => {
+                            if (!replyText.trim()) setPaused(false);
+                          }}
+                          placeholder={`Reply to ${activeUser.name}…`}
+                          maxLength={300}
+                          className="flex-1 bg-transparent text-white placeholder-white/50 text-sm outline-none"
+                        />
+                        <button
+                          onClick={handleReply}
+                          disabled={!replyText.trim() || replySending}
+                          className="text-white/80 hover:text-white disabled:opacity-40 transition flex-none"
+                          aria-label="Send reply"
+                        >
+                          {replySending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -528,11 +747,11 @@ export default function StatusBar({
                 {/* ── Invisible tap zones (left = back, right = advance) ── */}
                 <div
                   onClick={goBack}
-                  className="absolute left-0 top-0 w-1/3 h-full z-[5] cursor-pointer"
+                  className="absolute left-0 top-0 w-1/3 h-full z-5 cursor-pointer"
                 />
                 <div
                   onClick={advanceStatus}
-                  className="absolute right-0 top-0 w-1/3 h-full z-[5] cursor-pointer"
+                  className="absolute right-0 top-0 w-1/3 h-full z-5 cursor-pointer"
                 />
               </div>
             )}
@@ -554,9 +773,9 @@ export default function StatusBar({
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[80]" />
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-80" />
           <Dialog.Content
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 outline-none"
+            className="fixed inset-0 z-80 flex items-center justify-center p-4 outline-none"
             aria-describedby={undefined}
           >
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
@@ -642,7 +861,7 @@ export default function StatusBar({
                 <button
                   onClick={handleUpload}
                   disabled={!selectedFile || uploading}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {uploading ? "Uploading..." : "Share Story"}
                 </button>
