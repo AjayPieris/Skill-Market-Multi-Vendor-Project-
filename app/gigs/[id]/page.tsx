@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Star } from "lucide-react";
-import { placeOrderAction } from "@/app/actions/order";
+import { createCheckoutSessionAction } from "@/app/actions/order";
 import { startConversationAction } from "@/app/actions/conversation";
 import { currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
@@ -19,7 +19,8 @@ export default async function GigDetailPage({
     include: { vendor: true },
   });
 
-  if (!gig) return notFound();
+  // Treat soft-deleted gigs as not found
+  if (!gig || gig.deletedAt) return notFound();
 
   const viewer = await currentUser();
   const viewerDbUser = viewer
@@ -29,7 +30,7 @@ export default async function GigDetailPage({
 
   const placeOrder = async () => {
     "use server";
-    await placeOrderAction(gig.id);
+    await createCheckoutSessionAction(gig.id);
   };
 
   return (

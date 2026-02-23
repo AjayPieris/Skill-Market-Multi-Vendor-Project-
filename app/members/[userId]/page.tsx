@@ -60,7 +60,7 @@ export default async function MemberPage({
       },
     }),
     db.gig.findMany({
-      where: { vendorId: member.id },
+      where: { vendorId: member.id, deletedAt: null }, // Exclude soft-deleted gigs
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -85,14 +85,14 @@ export default async function MemberPage({
               followingId: {
                 in: Array.from(
                   new Set(
-                    [...followerUsers, ...followingUsers].map((u) => u.id)
-                  )
+                    [...followerUsers, ...followingUsers].map((u) => u.id),
+                  ),
                 ),
               },
             },
             select: { followingId: true },
           })
-        ).map((r) => r.followingId)
+        ).map((r) => r.followingId),
       )
     : new Set<string>();
 

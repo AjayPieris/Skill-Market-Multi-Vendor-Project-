@@ -100,10 +100,11 @@ model Gig {
 
 // NEW: The Order Model
 model Order {
-  id        String   @id @default(uuid())
-  price     Int      // Price paid at that time
-  status    String   @default("pending") // pending, completed
-  
+  id              String   @id @default(uuid())
+  price           Int      // Price paid at that time
+  status          String   @default("pending") // pending, completed
+  stripeSessionId String?  @unique // Prevents duplicate orders on page refresh
+
   // Who bought it?
   buyerId   String
   buyer     User     @relation(fields: [buyerId], references: [id])
