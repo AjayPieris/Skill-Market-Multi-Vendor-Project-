@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { ShieldCheck } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import NavChatWidget from "@/components/NavChatWidget";
+import StatusBar from "@/components/StatusBar";
 
 export default async function Navbar() {
   const user = await currentUser();
@@ -80,7 +81,10 @@ export default async function Navbar() {
               </Link>
             )}
 
-            {/* 2. Chat Widget — only message notifications */}
+            {/* 2. Stories / Status — to the left of chat */}
+            {dbUserId && <StatusBar currentUserId={dbUserId} />}
+
+            {/* 3. Chat Widget — only message notifications */}
             {dbUserId && (
               <NavChatWidget
                 currentUserId={dbUserId}

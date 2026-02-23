@@ -20,6 +20,7 @@ export default async function SearchPage({
   // Fetch gigs from database based on search term
   const gigs = await db.gig.findMany({
     where: {
+      deletedAt: null, // Exclude soft-deleted gigs
       OR: [
         { title: { contains: searchTerm, mode: "insensitive" } }, // Match title
         { description: { contains: searchTerm, mode: "insensitive" } }, // Match description

@@ -10,7 +10,11 @@ export default async function DashboardPage() {
   // (We use clerkId because that is what we have in the session)
   const dbUser = await db.user.findUnique({
     where: { clerkId: user?.id },
-    include: { gigs: true }, // Load their gigs to count them
+    include: {
+      gigs: {
+        where: { deletedAt: null }, // Only count active (non-deleted) gigs
+      },
+    },
   });
 
   if (!dbUser) return null; // Should not happen due to layout sync

@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Pusher from "pusher-js";
 import { MessageCircle, Send, X, ChevronLeft } from "lucide-react";
 
-
-
 type NewNotificationPayload = {
   conversationId?: string;
   senderName?: string;
@@ -41,8 +39,6 @@ interface Message {
   isRead: boolean;
   sender: { id: string; name: string | null; image: string | null };
 }
-
-
 
 function formatTime(date: string | Date) {
   return new Date(date).toLocaleTimeString("en-US", {
@@ -85,8 +81,6 @@ function Avatar({
     </div>
   );
 }
-
-
 
 export default function NavChatWidget({
   currentUserId,
@@ -167,14 +161,12 @@ export default function NavChatWidget({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserId]);
 
-  
   const fetchConversations = useCallback(async () => {
     const res = await fetch("/api/conversations/list");
     if (!res.ok) return;
     const data = (await res.json()) as { conversations: ConversationItem[] };
     setConversations(data.conversations);
 
-    
     const dbMap: Record<string, number> = {};
     for (const c of data.conversations) {
       dbMap[c.conversationId] = c.unreadCount;
@@ -191,7 +183,6 @@ export default function NavChatWidget({
     setTotalUnread(dbTotal);
   }, []);
 
-  
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
@@ -200,7 +191,6 @@ export default function NavChatWidget({
   useEffect(() => {
     if (open) fetchConversations();
   }, [open, fetchConversations]);
-
 
   const openConversation = useCallback(
     async (convId: string) => {
@@ -309,7 +299,6 @@ export default function NavChatWidget({
       convChannelRef.current = null;
     }
   };
-
 
   return (
     <div className="relative">
@@ -504,7 +493,7 @@ export default function NavChatWidget({
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Type a messageâ€¦"
+                  placeholder="Type a message..."
                   className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"
                   autoComplete="off"
                 />

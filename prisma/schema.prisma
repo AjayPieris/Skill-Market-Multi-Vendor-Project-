@@ -30,6 +30,37 @@ model User {
   conversationsInitiated Conversation[] @relation("UserOne")
   conversationsReceived  Conversation[] @relation("UserTwo")
   messages               Message[]
+  statuses               Status[]       // User's story posts
+}
+
+// Stories / Status (like Instagram Stories / WhatsApp Status)
+model Status {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mediaUrl  String
+  mediaType String   // "image" | "video"
+  caption   String?
+
+  expiresAt DateTime // createdAt + 24 h — filtered on every query
+  createdAt DateTime @default(now())
+
+  views     StatusView[]
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model StatusView {
+  id       String   @id @default(uuid())
+  statusId String
+  status   Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  viewerId String   // DB user id of the viewer (no hard FK to keep schema clean)
+  viewedAt DateTime @default(now())
+
+  @@unique([statusId, viewerId])
+  @@index([statusId])
 }
 
 model Follow {
