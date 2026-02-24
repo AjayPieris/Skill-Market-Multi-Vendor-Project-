@@ -107,7 +107,10 @@ export default function NotificationBell({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent
+        align="end"
+        className="w-72 max-w-[calc(100vw-1rem)]"
+      >
         <DropdownMenuLabel className="font-semibold">
           Activity
         </DropdownMenuLabel>

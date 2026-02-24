@@ -319,19 +319,16 @@ export default function NavChatWidget({
       {/* Floating Panel */}
       {open && (
         <div
-          className="fixed z-50 shadow-2xl rounded-2xl overflow-hidden flex border border-gray-200 bg-white"
-          style={{
-            width: selectedId ? 680 : 320,
-            height: 500,
-            top: 68,
-            right: 16,
-            transition: "width 0.2s ease",
-          }}
+          className={`fixed z-50 shadow-2xl overflow-hidden flex border border-gray-200 bg-white
+            inset-x-0 top-16 bottom-0 rounded-none
+            md:rounded-2xl md:inset-auto md:top-[68px] md:right-4 md:bottom-auto md:left-auto
+            ${selectedId ? "md:w-[680px]" : "md:w-[320px]"} md:h-[500px]`}
+          style={{ transition: "width 0.2s ease" }}
         >
           {/* LEFT: Conversation List */}
           <div
             className={`flex flex-col border-r bg-white ${
-              selectedId ? "w-64 shrink-0" : "w-full"
+              selectedId ? "hidden md:flex md:w-64 md:shrink-0" : "w-full"
             }`}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
@@ -403,7 +400,7 @@ export default function NavChatWidget({
 
           {/* RIGHT: Chat Window */}
           {selectedId && (
-            <div className="flex flex-col flex-1 min-w-0 bg-white">
+            <div className="flex flex-col flex-1 min-w-0 w-full bg-white">
               <div className="flex items-center gap-3 px-4 py-3 border-b bg-gray-50">
                 <button
                   onClick={() => {
