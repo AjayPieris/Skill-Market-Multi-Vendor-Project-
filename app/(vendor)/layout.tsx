@@ -48,7 +48,7 @@ export default async function VendorLayout({
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* SIDEBAR — hidden on mobile */}
-      <aside className="w-64 bg-white border-r hidden md:block!">
+      <aside className="w-64 bg-white border-r max-md:hidden flex-shrink-0">
         <div className="p-6">
           <h2 className="font-bold text-xl mb-6">Seller Portal</h2>
           <nav className="flex flex-col gap-2">
