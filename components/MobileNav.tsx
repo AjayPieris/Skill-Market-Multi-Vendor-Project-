@@ -28,20 +28,6 @@ export default function MobileNav({ isAdmin }: MobileNavProps) {
         <div className="absolute top-16 left-0 right-0 z-50 bg-white border-b shadow-lg">
           <nav className="flex flex-col px-4 py-4 gap-2">
             <Link
-              href="/search"
-              onClick={() => setOpen(false)}
-              className="py-3 px-4 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition"
-            >
-              Find Talent
-            </Link>
-            <Link
-              href="/become-seller"
-              onClick={() => setOpen(false)}
-              className="py-3 px-4 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition"
-            >
-              Become a Seller
-            </Link>
-            <Link
               href="/dashboard"
               onClick={() => setOpen(false)}
               className="py-3 px-4 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition"

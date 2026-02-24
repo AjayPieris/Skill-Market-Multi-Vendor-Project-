@@ -47,19 +47,6 @@ export default async function Navbar() {
           Skill<span className="text-black">Market</span>
         </Link>
 
-        {/* MIDDLE LINKS (Hidden on mobile) */}
-        <div className="max-md:hidden flex gap-6 text-sm font-medium text-gray-600">
-          <Link href="/search" className="hover:text-blue-600 transition">
-            Find Talent
-          </Link>
-          <Link
-            href="/become-seller"
-            className="hover:text-blue-600 transition"
-          >
-            Become a Seller
-          </Link>
-        </div>
-
         {/* ACTION BUTTONS */}
         <div className="flex gap-1 md:gap-2 items-center">
           {/* If user is NOT logged in */}
