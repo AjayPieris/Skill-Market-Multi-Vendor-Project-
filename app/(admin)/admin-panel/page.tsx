@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import type { Order } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -18,7 +19,7 @@ export default async function AdminDashboard() {
   // Calculate Total Money Flow
   const allOrders = await db.order.findMany();
   const totalRevenue = allOrders.reduce(
-    (acc: number, order) => acc + order.price,
+    (acc: number, order: Order) => acc + order.price,
     0,
   );
 
