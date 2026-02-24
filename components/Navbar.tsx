@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, LayoutDashboard } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import NavChatWidget from "@/components/NavChatWidget";
 import StatusBar from "@/components/StatusBar";
@@ -91,7 +91,15 @@ export default async function Navbar() {
             <Link href="/dashboard" className="max-md:hidden">
               <Button variant="ghost">Dashboard</Button>
             </Link>
-            <UserButton />
+            <UserButton>
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Dashboard"
+                  labelIcon={<LayoutDashboard className="w-4 h-4" />}
+                  href="/dashboard"
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </SignedIn>
 
           {/* Mobile hamburger menu */}
