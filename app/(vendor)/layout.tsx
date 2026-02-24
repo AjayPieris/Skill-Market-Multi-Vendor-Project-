@@ -47,7 +47,7 @@ export default async function VendorLayout({
   // 4. Render the Dashboard Layout
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR (Simple version) */}
+      {/* SIDEBAR — hidden on mobile */}
       <aside className="w-64 bg-white border-r hidden md:block!">
         <div className="p-6">
           <h2 className="font-bold text-xl mb-6">Seller Portal</h2>
@@ -86,7 +86,111 @@ export default async function VendorLayout({
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+
+      {/* MOBILE BOTTOM NAV — only on small screens */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-40 flex justify-around items-center h-16 px-2">
+        <Link
+          href="/dashboard"
+          className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+          Overview
+        </Link>
+        <Link
+          href="/dashboard/gigs"
+          className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
+          </svg>
+          My Gigs
+        </Link>
+        <Link
+          href="/dashboard/orders"
+          className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+            />
+          </svg>
+          Orders
+        </Link>
+        <Link
+          href="/dashboard/profile"
+          className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+          Profile
+        </Link>
+        <Link
+          href="/"
+          className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Home
+        </Link>
+      </nav>
     </div>
   );
 }

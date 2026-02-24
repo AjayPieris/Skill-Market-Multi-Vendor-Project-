@@ -7,6 +7,7 @@ import { ShieldCheck } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import NavChatWidget from "@/components/NavChatWidget";
 import StatusBar from "@/components/StatusBar";
+import MobileNav from "@/components/MobileNav";
 
 export default async function Navbar() {
   const user = await currentUser();
@@ -39,7 +40,7 @@ export default async function Navbar() {
   }
 
   return (
-    <nav className="border-b shadow-sm bg-white">
+    <nav className="border-b shadow-sm bg-white relative">
       <div className="flex h-16 items-center px-4 container mx-auto justify-between">
         {/* LOGO */}
         <Link href="/" className="font-bold text-2xl text-blue-600">
@@ -60,31 +61,35 @@ export default async function Navbar() {
         </div>
 
         {/* ACTION BUTTONS */}
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 md:gap-2 items-center">
           {/* If user is NOT logged in */}
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline" size="sm">
+                Sign In
+              </Button>
             </SignInButton>
-            <Button>Join Free</Button>
+            <Button size="sm" className="hidden sm:inline-flex">
+              Join Free
+            </Button>
           </SignedOut>
 
           {/* If user IS logged in */}
           <SignedIn>
-            {/* 1. Admin Button */}
+            {/* 1. Admin Button — hidden on mobile (in hamburger menu) */}
             {isAdmin && (
-              <Link href="/admin-panel">
-                <Button variant="destructive" size="sm" className="gap-2 mr-2">
+              <Link href="/admin-panel" className="hidden md:block">
+                <Button variant="destructive" size="sm" className="gap-2">
                   <ShieldCheck className="w-4 h-4" />
                   Admin
                 </Button>
               </Link>
             )}
 
-            {/* 2. Stories / Status — to the left of chat */}
+            {/* 2. Stories / Status */}
             {dbUserId && <StatusBar currentUserId={dbUserId} />}
 
-            {/* 3. Chat Widget — only message notifications */}
+            {/* 3. Chat Widget */}
             {dbUserId && (
               <NavChatWidget
                 currentUserId={dbUserId}
@@ -92,15 +97,18 @@ export default async function Navbar() {
               />
             )}
 
-            {/* 3. Notification Bell — orders, follows, and other activity */}
+            {/* 4. Notification Bell */}
             {dbUserId && <NotificationBell currentUserId={dbUserId} />}
 
-            {/* 3. Dashboard & Profile */}
-            <Link href="/dashboard">
+            {/* 5. Dashboard — hidden on mobile (in hamburger menu) */}
+            <Link href="/dashboard" className="hidden md:block">
               <Button variant="ghost">Dashboard</Button>
             </Link>
             <UserButton />
           </SignedIn>
+
+          {/* Mobile hamburger menu */}
+          <MobileNav isAdmin={isAdmin} />
         </div>
       </div>
     </nav>

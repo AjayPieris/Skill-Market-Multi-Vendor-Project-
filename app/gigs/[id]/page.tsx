@@ -57,10 +57,12 @@ export default async function GigDetailPage({
   };
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-8">
-          <h1 className="text-3xl font-bold text-gray-900">{gig.title}</h1>
+    <div className="container mx-auto px-4 py-6 md:py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
+        <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            {gig.title}
+          </h1>
           <div className="flex items-center gap-3">
             <img
               src={gig.vendor.image || "https://github.com/shadcn.png"}
@@ -181,8 +183,8 @@ export default async function GigDetailPage({
             )}
           </div>
         </div>
-        <div className="lg:col-span-1">
-          <div className="border rounded-xl p-6 shadow-sm sticky top-24 bg-white">
+        <div className="lg:col-span-1 order-1 lg:order-2">
+          <div className="border rounded-xl p-6 shadow-sm lg:sticky lg:top-24 bg-white">
             {isOwner ? (
               <div className="space-y-3">
                 <div className="text-sm text-gray-600">This is your gig.</div>

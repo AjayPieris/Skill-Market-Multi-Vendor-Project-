@@ -41,10 +41,10 @@ export default async function Home() {
             Find the perfect <span className="text-blue-400">freelance</span>{" "}
             services
           </h1>
-          <p className="text-xl text-zinc-300 mb-8">
+          <p className="text-lg md:text-xl text-zinc-300 mb-8 px-4">
             Get work done securely with our multi-vendor marketplace.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-3 px-4">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
               <Link href="/search">Find Work</Link>
             </Button>

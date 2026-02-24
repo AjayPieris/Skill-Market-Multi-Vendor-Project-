@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
       {/* SCOREBOARD */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-slate-900 border-slate-800 text-white">
@@ -75,41 +75,43 @@ export default async function AdminDashboard() {
       </div>
 
       {/* USER MANAGEMENT TABLE */}
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 md:p-6">
         <h2 className="text-xl font-bold mb-4">Newest Users</h2>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-slate-800 hover:bg-transparent">
-              <TableHead className="text-slate-400">Name</TableHead>
-              <TableHead className="text-slate-400">Email</TableHead>
-              <TableHead className="text-slate-400">Role</TableHead>
-              <TableHead className="text-slate-400">Joined</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentUsers.map((u) => (
-              <TableRow
-                key={u.id}
-                className="border-slate-800 hover:bg-slate-800"
-              >
-                <TableCell className="font-medium text-slate-200">
-                  {u.name}
-                </TableCell>
-                <TableCell className="text-slate-400">{u.email}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${u.role === "admin" ? "bg-purple-900 text-purple-200" : "bg-blue-900 text-blue-200"}`}
-                  >
-                    {u.role}
-                  </span>
-                </TableCell>
-                <TableCell className="text-slate-400">
-                  {u.createdAt.toLocaleDateString()}
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-slate-800 hover:bg-transparent">
+                <TableHead className="text-slate-400">Name</TableHead>
+                <TableHead className="text-slate-400">Email</TableHead>
+                <TableHead className="text-slate-400">Role</TableHead>
+                <TableHead className="text-slate-400">Joined</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {recentUsers.map((u) => (
+                <TableRow
+                  key={u.id}
+                  className="border-slate-800 hover:bg-slate-800"
+                >
+                  <TableCell className="font-medium text-slate-200">
+                    {u.name}
+                  </TableCell>
+                  <TableCell className="text-slate-400">{u.email}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${u.role === "admin" ? "bg-purple-900 text-purple-200" : "bg-blue-900 text-blue-200"}`}
+                    >
+                      {u.role}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-slate-400">
+                    {u.createdAt.toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

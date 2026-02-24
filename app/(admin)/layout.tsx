@@ -23,7 +23,7 @@ export default async function AdminLayout({
         <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
         <p>You are not authorized to view this page.</p>
         <Link href="/">
-           <Button>Go Home</Button>
+          <Button>Go Home</Button>
         </Link>
       </div>
     );
@@ -31,16 +31,20 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <nav className="border-b border-slate-800 p-4 flex justify-between items-center bg-slate-900">
-        <h1 className="font-bold text-xl text-white">Admin Control Center</h1>
+      <nav className="border-b border-slate-800 p-4 flex flex-wrap gap-2 justify-between items-center bg-slate-900">
+        <h1 className="font-bold text-lg md:text-xl text-white">
+          Admin Control Center
+        </h1>
         <div className="flex gap-4">
-            <Link href="/admin-panel" className="hover:text-blue-400">Overview</Link>
-            <Link href="/" className="hover:text-blue-400">Exit to Website</Link>
+          <Link href="/admin-panel" className="hover:text-blue-400 text-sm">
+            Overview
+          </Link>
+          <Link href="/" className="hover:text-blue-400 text-sm">
+            Exit to Website
+          </Link>
         </div>
       </nav>
-      <main className="p-8">
-        {children}
-      </main>
+      <main className="p-4 md:p-8">{children}</main>
     </div>
   );
 }
