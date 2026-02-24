@@ -25,6 +25,7 @@ model User {
 
   gigs      Gig[]    // A User (Vendor) can own many Gigs
   orders    Order[]  // A User (Customer) can have many Orders
+  reviews   Review[] // Reviews written by this user
   createdAt DateTime @default(now())
 
   conversationsInitiated Conversation[] @relation("UserOne")
@@ -97,6 +98,7 @@ model Gig {
   vendor      User     @relation(fields: [vendorId], references: [id])
 
   orders      Order[]  // A Gig can have many Orders
+  reviews     Review[] // A Gig can have many Reviews
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -118,7 +120,30 @@ model Order {
   gigId     String
   gig       Gig      @relation(fields: [gigId], references: [id])
 
+  review    Review?  // One order can have at most one review
+
   createdAt DateTime @default(now())
+}
+
+// Review — only buyers who placed an order can leave a review
+model Review {
+  id         String   @id @default(uuid())
+  rating     Int      // 1 – 5
+  comment    String
+
+  orderId    String   @unique // one review per order
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  gigId      String
+  gig        Gig      @relation(fields: [gigId], references: [id], onDelete: Cascade)
+
+  reviewerId String
+  reviewer   User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+
+  @@index([gigId])
+  @@index([reviewerId])
 }
 
 model Conversation {

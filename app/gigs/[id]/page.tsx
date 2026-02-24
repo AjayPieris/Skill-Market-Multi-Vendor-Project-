@@ -6,6 +6,7 @@ import { createCheckoutSessionAction } from "@/app/actions/order";
 import { startConversationAction } from "@/app/actions/conversation";
 import { currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
+import ReviewForm from "@/components/ReviewForm";
 
 export default async function GigDetailPage({
   params,
@@ -16,7 +17,13 @@ export default async function GigDetailPage({
 
   const gig = await db.gig.findUnique({
     where: { id },
-    include: { vendor: true },
+    include: {
+      vendor: true,
+      reviews: {
+        include: { reviewer: true },
+        orderBy: { createdAt: "desc" },
+      },
+    },
   });
 
   // Treat soft-deleted gigs as not found
@@ -27,6 +34,22 @@ export default async function GigDetailPage({
     ? await db.user.findUnique({ where: { clerkId: viewer.id } })
     : null;
   const isOwner = viewerDbUser?.id === gig.vendorId;
+
+  // Find an order by this buyer for this gig that has no review yet
+  const unreviewedOrder = viewerDbUser
+    ? await db.order.findFirst({
+        where: {
+          gigId: gig.id,
+          buyerId: viewerDbUser.id,
+          review: null,
+        },
+      })
+    : null;
+
+  const avgRating =
+    gig.reviews.length > 0
+      ? gig.reviews.reduce((sum, r) => sum + r.rating, 0) / gig.reviews.length
+      : null;
 
   const placeOrder = async () => {
     "use server";
@@ -46,13 +69,25 @@ export default async function GigDetailPage({
             />
             <div>
               <p className="font-bold text-sm">{gig.vendor.name}</p>
-              <div className="flex items-center text-yellow-500 text-xs">
-                <Star className="w-3 h-3 fill-current" />
-                <Star className="w-3 h-3 fill-current" />
-                <Star className="w-3 h-3 fill-current" />
-                <Star className="w-3 h-3 fill-current" />
-                <Star className="w-3 h-3 fill-current" />
-                <span className="text-gray-400 ml-1">(5.0)</span>
+              <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    className={`w-3 h-3 ${
+                      avgRating !== null && s <= Math.round(avgRating)
+                        ? "fill-current"
+                        : "text-gray-300"
+                    }`}
+                  />
+                ))}
+                {avgRating !== null ? (
+                  <span className="text-gray-500 ml-1">
+                    ({avgRating.toFixed(1)}) · {gig.reviews.length} review
+                    {gig.reviews.length !== 1 ? "s" : ""}
+                  </span>
+                ) : (
+                  <span className="text-gray-400 ml-1">No reviews yet</span>
+                )}
               </div>
             </div>
           </div>
@@ -68,6 +103,82 @@ export default async function GigDetailPage({
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
               {gig.description}
             </p>
+          </div>
+
+          {/* ── REVIEWS SECTION ── */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <h3 className="text-xl font-semibold">
+                Reviews ({gig.reviews.length})
+              </h3>
+              {avgRating !== null && (
+                <div className="flex items-center gap-1 text-yellow-500">
+                  <Star className="w-4 h-4 fill-current" />
+                  <span className="font-bold text-sm">
+                    {avgRating.toFixed(1)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Review form — only for buyers with an unreviewed order */}
+            {unreviewedOrder && (
+              <ReviewForm gigId={gig.id} orderId={unreviewedOrder.id} />
+            )}
+
+            {/* All reviews list */}
+            {gig.reviews.length === 0 ? (
+              <p className="text-gray-400 text-sm">
+                No reviews yet. Be the first to review!
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {gig.reviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="border rounded-xl p-5 bg-white space-y-2 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={
+                            review.reviewer.image ||
+                            "https://github.com/shadcn.png"
+                          }
+                          alt={review.reviewer.name || "User"}
+                          className="w-8 h-8 rounded-full border"
+                        />
+                        <span className="font-semibold text-sm">
+                          {review.reviewer.name || "Anonymous"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-0.5 text-yellow-500">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-3.5 h-3.5 ${
+                              s <= review.rating
+                                ? "fill-current"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {review.comment}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(review.createdAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="lg:col-span-1">

@@ -8,13 +8,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 // 2. This is an Async Server Component
 export default async function Home() {
   // 3. Fetch data directly from the DB
   const gigs = await db.gig.findMany({
     where: { deletedAt: null }, // Exclude soft-deleted gigs
-    include: { vendor: true }, // Join with the User table to get the vendor's name
+    include: {
+      vendor: true, // Join with the User table to get the vendor's name
+      _count: { select: { orders: true } },
+      reviews: { select: { rating: true } },
+    },
   });
 
   return (
@@ -91,6 +96,31 @@ export default async function Home() {
 
                 <CardFooter className="border-t pt-4 flex justify-between items-center">
                   <span className="font-bold text-lg">${gig.price}</span>
+                  <div className="flex flex-col items-end gap-0.5">
+                    {gig.reviews.length > 0 ? (
+                      <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>
+                          {(
+                            gig.reviews.reduce((s, r) => s + r.rating, 0) /
+                            gig.reviews.length
+                          ).toFixed(1)}
+                        </span>
+                        <span className="text-gray-400 font-normal">
+                          ({gig.reviews.length})
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-gray-300 text-xs">
+                        <Star className="w-3 h-3" />
+                        <span>No ratings</span>
+                      </div>
+                    )}
+                    <span className="text-xs text-gray-400">
+                      {gig._count.orders} sale
+                      {gig._count.orders !== 1 ? "s" : ""}
+                    </span>
+                  </div>
                 </CardFooter>
               </Card>
             </Link>
