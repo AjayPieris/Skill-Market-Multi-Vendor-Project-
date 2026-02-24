@@ -53,15 +53,14 @@ export default async function SuccessPage({
       </div>
       <h1 className="text-3xl font-bold">Order Placed Successfully!</h1>
       <p className="text-gray-600 max-w-md">
-        Payment confirmed. The vendor has been notified. You can track your
-        order status in your dashboard.
+        Payment confirmed. The freelancer has been notified. Please check your dashboard for updates.
       </p>
       <div className="flex gap-4">
         <Link href="/dashboard">
           <Button variant="outline">Go to Dashboard</Button>
         </Link>
         <Link href="/">
-          <Button>Continue Shopping</Button>
+          <Button>Explore More Jobs</Button>
         </Link>
       </div>
     </div>
