@@ -92,17 +92,20 @@ export default async function GigDetailPage({
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-6">
-                  I will provide a high-quality service with unlimited
-                  revisions.
+                  {gig.packageDescription ||
+                    "I will provide a high-quality service."}
                 </p>
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span>3 Days Delivery</span>
+                    <span>
+                      {gig.deliveryDays}{" "}
+                      {gig.deliveryDays === 1 ? "Day" : "Days"} Delivery
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span>Unlimited Revisions</span>
+                    <span>{gig.revisions} Revisions</span>
                   </div>
                 </div>
                 <form action={placeOrder}>

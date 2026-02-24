@@ -5,9 +5,9 @@ import { useState } from "react";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"; 
-import { Label } from "@/components/ui/label";       
-import { createGigAction } from "@/app/actions/gig"; 
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { createGigAction } from "@/app/actions/gig";
 import { useRouter } from "next/navigation";
 
 export default function CreateGigPage() {
@@ -20,7 +20,7 @@ export default function CreateGigPage() {
       alert("Please upload an image first!");
       return;
     }
-    
+
     // Call the server action
     await createGigAction(formData, imageUrl);
     router.push("/dashboard/gigs"); // Redirect back to list
@@ -31,16 +31,19 @@ export default function CreateGigPage() {
       <h1 className="text-3xl font-bold">Create a New Gig</h1>
 
       <div className="border p-6 rounded-lg bg-white shadow-sm space-y-6">
-        
         {/* 1. IMAGE UPLOAD SECTION */}
         <div>
           <Label>Gig Thumbnail</Label>
           {imageUrl ? (
             <div className="relative mt-2">
-              <img src={imageUrl} alt="Upload" className="w-full h-48 object-cover rounded-md" />
-              <Button 
-                variant="destructive" 
-                size="sm" 
+              <img
+                src={imageUrl}
+                alt="Upload"
+                className="w-full h-48 object-cover rounded-md"
+              />
+              <Button
+                variant="destructive"
+                size="sm"
                 className="absolute top-2 right-2"
                 onClick={() => setImageUrl("")}
               >
@@ -63,32 +66,93 @@ export default function CreateGigPage() {
 
         {/* 2. FORM SECTION */}
         <form action={handleSubmit} className="space-y-4">
-          
           <div className="grid gap-2">
             <Label htmlFor="title">Gig Title</Label>
-            <Input name="title" id="title" placeholder="e.g. I will design a minimalist logo" required />
+            <Input
+              name="title"
+              id="title"
+              placeholder="e.g. I will design a minimalist logo"
+              required
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="category">Category</Label>
-            <select name="category" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option value="Design">Design</option>
-                <option value="Development">Development</option>
-                <option value="Marketing">Marketing</option>
+            <select
+              name="category"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="Design">Design</option>
+              <option value="Development">Development</option>
+              <option value="Marketing">Marketing</option>
             </select>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea name="description" id="description" placeholder="Describe your service..." required />
+            <Textarea
+              name="description"
+              id="description"
+              placeholder="Describe your service..."
+              required
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="price">Price ($)</Label>
-            <Input name="price" id="price" type="number" min="5" placeholder="50" required />
+            <Input
+              name="price"
+              id="price"
+              type="number"
+              min="5"
+              placeholder="50"
+              required
+            />
           </div>
 
-          <Button type="submit" className="w-full" size="lg">Publish Gig</Button>
+          {/* STANDARD PACKAGE SECTION */}
+          <div className="border-t pt-4 space-y-4">
+            <h2 className="font-semibold text-gray-700">
+              Standard Package Details
+            </h2>
+
+            <div className="grid gap-2">
+              <Label htmlFor="packageDescription">Package Description</Label>
+              <Textarea
+                name="packageDescription"
+                id="packageDescription"
+                placeholder="e.g. I will provide a high-quality service with unlimited revisions."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="deliveryDays">Delivery (days)</Label>
+                <Input
+                  name="deliveryDays"
+                  id="deliveryDays"
+                  type="number"
+                  min="1"
+                  defaultValue="3"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="revisions">Revisions</Label>
+                <Input
+                  name="revisions"
+                  id="revisions"
+                  placeholder="e.g. Unlimited or 3"
+                  defaultValue="Unlimited"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" size="lg">
+            Publish Gig
+          </Button>
         </form>
       </div>
     </div>

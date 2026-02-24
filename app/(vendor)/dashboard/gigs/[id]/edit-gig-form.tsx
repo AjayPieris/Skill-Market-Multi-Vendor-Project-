@@ -17,6 +17,9 @@ export default function EditGigForm({
   initialCategory,
   initialPrice,
   initialImageUrl,
+  initialPackageDescription,
+  initialDeliveryDays,
+  initialRevisions,
 }: {
   gigId: string;
   initialTitle: string;
@@ -24,6 +27,9 @@ export default function EditGigForm({
   initialCategory: string;
   initialPrice: number;
   initialImageUrl: string;
+  initialPackageDescription: string | null;
+  initialDeliveryDays: number;
+  initialRevisions: string;
 }) {
   const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string>(initialImageUrl);
@@ -124,6 +130,47 @@ export default function EditGigForm({
               placeholder="50"
               required
             />
+          </div>
+
+          {/* STANDARD PACKAGE SECTION */}
+          <div className="border-t pt-4 space-y-4">
+            <h2 className="font-semibold text-gray-700">
+              Standard Package Details
+            </h2>
+
+            <div className="grid gap-2">
+              <Label htmlFor="packageDescription">Package Description</Label>
+              <Textarea
+                name="packageDescription"
+                id="packageDescription"
+                defaultValue={initialPackageDescription ?? ""}
+                placeholder="e.g. I will provide a high-quality service with unlimited revisions."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="deliveryDays">Delivery (days)</Label>
+                <Input
+                  name="deliveryDays"
+                  id="deliveryDays"
+                  type="number"
+                  min="1"
+                  defaultValue={initialDeliveryDays}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="revisions">Revisions</Label>
+                <Input
+                  name="revisions"
+                  id="revisions"
+                  defaultValue={initialRevisions}
+                  placeholder="e.g. Unlimited or 3"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={saving}>

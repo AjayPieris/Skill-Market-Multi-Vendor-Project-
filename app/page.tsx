@@ -20,21 +20,33 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
-      <section className="bg-zinc-900 text-white py-20 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Find the perfect <span className="text-blue-400">freelance</span>{" "}
-          services
-        </h1>
-        <p className="text-xl text-zinc-300 mb-8">
-          Get work done securely with our multi-vendor marketplace.
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-            <Link href="/search">Find Work</Link>
-          </Button>
-          <Button size="lg" variant="outline" className="text-black bg-white">
-            <Link href="/become-seller">Become a Seller</Link>
-          </Button>
+      <section
+        className="relative text-white text-center overflow-hidden flex items-center justify-center min-h-[520px]"
+        style={{
+          backgroundImage: "url('/freelance.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center top",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* dark overlay so text stays readable */}
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Find the perfect <span className="text-blue-400">freelance</span>{" "}
+            services
+          </h1>
+          <p className="text-xl text-zinc-300 mb-8">
+            Get work done securely with our multi-vendor marketplace.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Link href="/search">Find Work</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-black bg-white">
+              <Link href="/become-seller">Become a Seller</Link>
+            </Button>
+          </div>
         </div>
       </section>
 

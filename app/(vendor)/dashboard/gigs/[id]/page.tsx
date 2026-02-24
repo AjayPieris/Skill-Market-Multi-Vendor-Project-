@@ -30,6 +30,9 @@ export default async function EditGigPage({
       initialCategory={gig.category}
       initialPrice={gig.price}
       initialImageUrl={gig.imageUrl}
+      initialPackageDescription={gig.packageDescription ?? null}
+      initialDeliveryDays={gig.deliveryDays}
+      initialRevisions={gig.revisions}
     />
   );
 }

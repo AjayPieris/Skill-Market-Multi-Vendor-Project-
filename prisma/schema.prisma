@@ -80,12 +80,17 @@ model Follow {
 
 // 2. THE GIG (The Service being sold)
 model Gig {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  price       Int
-  imageUrl    String   // Thumbnail for the gig
-  category    String   // e.g. "Design", "Web Dev"
+  id                 String   @id @default(uuid())
+  title              String
+  description        String
+  price              Int
+  imageUrl           String   // Thumbnail for the gig
+  category           String   // e.g. "Design", "Web Dev"
+
+  // Standard Package details
+  packageDescription String?  // e.g. "I will provide a high-quality service..."
+  deliveryDays       Int      @default(3)   // e.g. 3
+  revisions          String   @default("Unlimited") // e.g. "Unlimited" or "3"
 
   // RELATIONSHIP: A Gig belongs to ONE Vendor (User)
   vendorId    String
