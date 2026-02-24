@@ -8,7 +8,6 @@ import NotificationBell from "@/components/NotificationBell";
 import NavChatWidget from "@/components/NavChatWidget";
 import StatusBar from "@/components/StatusBar";
 import UserProfileButton from "@/components/UserProfileButton";
-import MobileNav from "@/components/MobileNav";
 
 export default async function Navbar() {
   const user = await currentUser();
@@ -88,15 +87,8 @@ export default async function Navbar() {
             {/* 4. Notification Bell */}
             {dbUserId && <NotificationBell currentUserId={dbUserId} />}
 
-            {/* 5. Dashboard — hidden on mobile (in hamburger menu) */}
-            <Link href="/dashboard" className="max-md:hidden">
-              <Button variant="ghost">Dashboard</Button>
-            </Link>
             <UserProfileButton />
           </SignedIn>
-
-          {/* Mobile hamburger menu */}
-          <MobileNav isAdmin={isAdmin} />
         </div>
       </div>
     </nav>
