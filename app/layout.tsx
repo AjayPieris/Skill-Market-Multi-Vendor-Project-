@@ -12,6 +12,9 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Skill Market",
   description: "Find the best freelancers",
+  icons: {
+    icon: "/skill.png",
+  },
 };
 
 export default function RootLayout({
