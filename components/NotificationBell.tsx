@@ -2,15 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Pusher from "pusher-js";
-import { Bell, ShoppingBag, UserPlus, Briefcase, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Bell,
+  ShoppingBag,
+  UserPlus,
+  Briefcase,
+  Pencil,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -95,101 +95,120 @@ export default function NotificationBell({
   };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-gray-600" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        align="end"
-        className="w-72 max-w-[calc(100vw-1rem)]"
+    <div className="relative">
+      {/* Bell trigger */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative"
+        onClick={() => handleOpenChange(!isOpen)}
       >
-        <DropdownMenuLabel className="font-semibold">
-          Activity
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <Bell className="w-5 h-5 text-gray-600" />
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
+      </Button>
 
-        {notifications.length === 0 ? (
-          <div className="p-5 text-sm text-gray-400 text-center">
-            No activity yet.
-          </div>
-        ) : (
-          <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
-            {notifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => {
-                  if (n.link) {
-                    setIsOpen(false);
-                    router.push(n.link);
-                  }
-                }}
-                className={`flex items-start gap-3 px-3 py-3 ${
-                  n.link ? "cursor-pointer hover:bg-gray-50 transition" : ""
-                }`}
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => handleOpenChange(false)}
+          />
+
+          {/* Panel — full-width on mobile, fixed-width on desktop */}
+          <div className="fixed left-0 right-0 top-16 z-50 md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-72 md:rounded-xl md:shadow-2xl md:border md:border-gray-100 bg-white shadow-lg">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <span className="font-semibold text-sm text-gray-800">
+                Activity
+              </span>
+              <button
+                onClick={() => handleOpenChange(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
               >
-                <div className="shrink-0 mt-0.5">
-                  {n.actorImage ? (
-                    <img
-                      src={n.actorImage}
-                      alt={n.actorName}
-                      className="w-8 h-8 rounded-full border object-cover"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                      {n.type === "order" ? (
-                        <ShoppingBag className="w-4 h-4 text-blue-600" />
-                      ) : n.type === "new-gig" ? (
-                        <Briefcase className="w-4 h-4 text-purple-600" />
-                      ) : n.type === "edit-gig" ? (
-                        <Pencil className="w-4 h-4 text-orange-500" />
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {notifications.length === 0 ? (
+              <div className="p-5 text-sm text-gray-400 text-center">
+                No activity yet.
+              </div>
+            ) : (
+              <div className="max-h-[60vh] md:max-h-80 overflow-y-auto divide-y divide-gray-100">
+                {notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    onClick={() => {
+                      if (n.link) {
+                        handleOpenChange(false);
+                        router.push(n.link);
+                      }
+                    }}
+                    className={`flex items-start gap-3 px-4 py-3 ${
+                      n.link ? "cursor-pointer hover:bg-gray-50 transition" : ""
+                    }`}
+                  >
+                    <div className="shrink-0 mt-0.5">
+                      {n.actorImage ? (
+                        <img
+                          src={n.actorImage}
+                          alt={n.actorName}
+                          className="w-8 h-8 rounded-full border object-cover"
+                        />
                       ) : (
-                        <UserPlus className="w-4 h-4 text-green-600" />
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                          {n.type === "order" ? (
+                            <ShoppingBag className="w-4 h-4 text-blue-600" />
+                          ) : n.type === "new-gig" ? (
+                            <Briefcase className="w-4 h-4 text-purple-600" />
+                          ) : n.type === "edit-gig" ? (
+                            <Pencil className="w-4 h-4 text-orange-500" />
+                          ) : (
+                            <UserPlus className="w-4 h-4 text-green-600" />
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
 
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 leading-snug">
-                    {n.message}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {formatTime(n.createdAt)}
-                  </p>
-                </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 leading-snug">
+                        {n.message}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {formatTime(n.createdAt)}
+                      </p>
+                    </div>
 
-                <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
-                    n.type === "order"
-                      ? "bg-blue-100 text-blue-700"
-                      : n.type === "new-gig"
-                        ? "bg-purple-100 text-purple-700"
-                        : n.type === "edit-gig"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-green-100 text-green-700"
-                  }`}
-                >
-                  {n.type === "order"
-                    ? "Order"
-                    : n.type === "new-gig"
-                      ? "New Gig"
-                      : n.type === "edit-gig"
-                        ? "Updated"
-                        : "Follow"}
-                </span>
+                    <span
+                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
+                        n.type === "order"
+                          ? "bg-blue-100 text-blue-700"
+                          : n.type === "new-gig"
+                            ? "bg-purple-100 text-purple-700"
+                            : n.type === "edit-gig"
+                              ? "bg-orange-100 text-orange-700"
+                              : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {n.type === "order"
+                        ? "Order"
+                        : n.type === "new-gig"
+                          ? "New Gig"
+                          : n.type === "edit-gig"
+                            ? "Updated"
+                            : "Follow"}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </>
+      )}
+    </div>
   );
 }

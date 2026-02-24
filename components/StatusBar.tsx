@@ -340,7 +340,9 @@ export default function StatusBar({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40 z-60" />
           <Dialog.Content
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-60 bg-white rounded-2xl shadow-2xl w-[calc(100%-2rem)] max-w-xl p-4 md:p-6 outline-none"
+            className="fixed top-16 inset-x-0 z-60 bg-white shadow-2xl outline-none
+              md:left-1/2 md:-translate-x-1/2 md:inset-x-auto md:w-full md:max-w-xl md:rounded-2xl
+              p-4 md:p-6"
             aria-describedby={undefined}
           >
             <div className="flex items-center justify-between mb-4">
