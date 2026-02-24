@@ -48,7 +48,7 @@ export default async function Navbar() {
         </Link>
 
         {/* MIDDLE LINKS (Hidden on mobile) */}
-        <div className="hidden md:flex gap-6 text-sm font-medium text-gray-600">
+        <div className="max-md:hidden flex gap-6 text-sm font-medium text-gray-600">
           <Link href="/search" className="hover:text-blue-600 transition">
             Find Talent
           </Link>
@@ -69,7 +69,7 @@ export default async function Navbar() {
                 Sign In
               </Button>
             </SignInButton>
-            <Button size="sm" className="hidden sm:inline-flex">
+            <Button size="sm" className="max-sm:hidden">
               Join Free
             </Button>
           </SignedOut>
@@ -78,7 +78,7 @@ export default async function Navbar() {
           <SignedIn>
             {/* 1. Admin Button — hidden on mobile (in hamburger menu) */}
             {isAdmin && (
-              <Link href="/admin-panel" className="hidden md:block">
+              <Link href="/admin-panel" className="max-md:hidden">
                 <Button variant="destructive" size="sm" className="gap-2">
                   <ShieldCheck className="w-4 h-4" />
                   Admin
@@ -101,7 +101,7 @@ export default async function Navbar() {
             {dbUserId && <NotificationBell currentUserId={dbUserId} />}
 
             {/* 5. Dashboard — hidden on mobile (in hamburger menu) */}
-            <Link href="/dashboard" className="hidden md:block">
+            <Link href="/dashboard" className="max-md:hidden">
               <Button variant="ghost">Dashboard</Button>
             </Link>
             <UserButton />
