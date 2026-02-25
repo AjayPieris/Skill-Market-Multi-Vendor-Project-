@@ -72,6 +72,24 @@ export async function POST(req: Request) {
     update: {},
   });
 
+  // Automatically start a conversation between follower and followed user
+  let conversation = await db.conversation.findFirst({
+    where: {
+      OR: [
+        { userOneId: dbUser.id, userTwoId: targetUserId },
+        { userOneId: targetUserId, userTwoId: dbUser.id },
+      ],
+    },
+  });
+  if (!conversation) {
+    conversation = await db.conversation.create({
+      data: {
+        userOneId: dbUser.id,
+        userTwoId: targetUserId,
+      },
+    });
+  }
+
   // Notify the person being followed
   await pusherServer.trigger(targetUserId, "new-activity-notification", {
     type: "follow",
