@@ -47,27 +47,34 @@ export async function GET() {
     unreadMap[row.conversationId] = row._count.id;
   }
 
-  // Sort by last message time (most recent first)
-  const sorted = conversations.sort((a, b) => {
-    const aTime = a.messages[0]?.createdAt
-      ? new Date(a.messages[0].createdAt).getTime()
-      : 0;
-    const bTime = b.messages[0]?.createdAt
-      ? new Date(b.messages[0].createdAt).getTime()
-      : 0;
-    return bTime - aTime;
-  });
-
-  const result = sorted.map((conv) => {
+  const result = conversations.map((conv) => {
     const otherUser =
       conv.userOneId === dbUser.id ? conv.userTwo : conv.userOne;
     const lastMessage = conv.messages[0] ?? null;
+    const hasMessages = conv._count.messages > 0;
     return {
       conversationId: conv.id,
       otherUser,
       lastMessage,
+      hasMessages,
       unreadCount: unreadMap[conv.id] ?? 0,
     };
+  });
+
+  // Sort: new-follow conversations (no messages) first, then by last message time desc
+  result.sort((a, b) => {
+    // New follows (no messages) go to the top
+    if (!a.hasMessages && b.hasMessages) return -1;
+    if (a.hasMessages && !b.hasMessages) return 1;
+
+    // Among conversations with messages, sort by most recent
+    const aTime = a.lastMessage?.createdAt
+      ? new Date(a.lastMessage.createdAt).getTime()
+      : 0;
+    const bTime = b.lastMessage?.createdAt
+      ? new Date(b.lastMessage.createdAt).getTime()
+      : 0;
+    return bTime - aTime;
   });
 
   return NextResponse.json({ conversations: result, currentUserId: dbUser.id });

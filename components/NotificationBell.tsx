@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -49,6 +49,25 @@ export default function NotificationBell({
   const [isOpen, setIsOpen] = useState(false);
   const idRef = useRef(0);
   const router = useRouter();
+  const PANEL_ID = "notification-bell";
+
+  // Close on route change (e.g. clicking mobile bottom tabs)
+  const pathname = usePathname();
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Listen for other panels opening — close this one
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ panelId: string }>).detail;
+      if (detail?.panelId && detail.panelId !== PANEL_ID) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("nav-panel-open", handler);
+    return () => window.removeEventListener("nav-panel-open", handler);
+  }, []);
 
   useEffect(() => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
@@ -83,7 +102,12 @@ export default function NotificationBell({
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open) setUnreadCount(0);
+    if (open) {
+      setUnreadCount(0);
+      window.dispatchEvent(
+        new CustomEvent("nav-panel-open", { detail: { panelId: PANEL_ID } })
+      );
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -115,12 +139,12 @@ export default function NotificationBell({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 md:inset-0"
             onClick={() => handleOpenChange(false)}
           />
 
           {/* Panel — full-width on mobile, fixed-width on desktop */}
-          <div className="fixed left-0 right-0 top-16 z-50 md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-72 md:rounded-xl md:shadow-2xl md:border md:border-gray-100 bg-white shadow-lg">
+          <div className="fixed left-0 right-0 top-16 bottom-16 z-50 md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-72 md:bottom-auto md:rounded-xl md:shadow-2xl md:border md:border-gray-100 bg-white shadow-lg overflow-y-auto">
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <span className="font-semibold text-sm text-gray-800">
                 Activity

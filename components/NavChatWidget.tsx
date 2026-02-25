@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Pusher from "pusher-js";
-import { MessageCircle, Send, X, ChevronLeft } from "lucide-react";
+import { MessageCircle, Send, X, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { usePathname } from "next/navigation";
 
 type NewNotificationPayload = {
   conversationId?: string;
@@ -29,6 +30,7 @@ interface ConversationItem {
   conversationId: string;
   otherUser: OtherUser;
   lastMessage: LastMessage | null;
+  hasMessages: boolean;
   unreadCount: number;
 }
 
@@ -97,6 +99,7 @@ export default function NavChatWidget({
   const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Per-conversation unread map: { conversationId -> count }
   const [unreadMap, setUnreadMap] = useState<Record<string, number>>({});
@@ -108,10 +111,43 @@ export default function NavChatWidget({
   const convPusherRef = useRef<Pusher | null>(null);
   const convChannelRef = useRef<ReturnType<Pusher["subscribe"]> | null>(null);
   const selectedIdRef = useRef<string | null>(null);
+  const PANEL_ID = "chat-widget";
 
   useEffect(() => {
     selectedIdRef.current = selectedId;
   }, [selectedId]);
+
+  // Close chat panel on route change (e.g. clicking mobile bottom tabs)
+  const pathname = usePathname();
+  useEffect(() => {
+    setOpen(false);
+    setSelectedId(null);
+    setMessages([]);
+    setOtherUser(null);
+    if (convChannelRef.current) {
+      convPusherRef.current?.unsubscribe(convChannelRef.current.name);
+      convChannelRef.current = null;
+    }
+  }, [pathname]);
+
+  // Listen for other panels opening — close this one (Facebook-style)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ panelId: string }>).detail;
+      if (detail?.panelId && detail.panelId !== PANEL_ID) {
+        setOpen(false);
+        setSelectedId(null);
+        setMessages([]);
+        setOtherUser(null);
+        if (convChannelRef.current) {
+          convPusherRef.current?.unsubscribe(convChannelRef.current.name);
+          convChannelRef.current = null;
+        }
+      }
+    };
+    window.addEventListener("nav-panel-open", handler);
+    return () => window.removeEventListener("nav-panel-open", handler);
+  }, []);
 
   // ── ALWAYS-ON personal channel — works even when widget is closed ─────────
   useEffect(() => {
@@ -320,7 +356,16 @@ export default function NavChatWidget({
     <div className="relative">
       {/* Chat Icon */}
       <button
-        onClick={() => (open ? handleClose() : setOpen(true))}
+        onClick={() => {
+          if (open) {
+            handleClose();
+          } else {
+            setOpen(true);
+            window.dispatchEvent(
+              new CustomEvent("nav-panel-open", { detail: { panelId: PANEL_ID } })
+            );
+          }
+        }}
         className="relative p-2 rounded-full hover:bg-gray-100 transition text-gray-600 hover:text-blue-600"
         aria-label="Open chat"
       >
@@ -336,7 +381,7 @@ export default function NavChatWidget({
       {open && (
         <div
           className={`fixed z-50 shadow-2xl overflow-hidden flex border border-gray-200 bg-white
-            inset-x-0 top-16 bottom-0 rounded-none
+            inset-x-0 top-16 bottom-16 rounded-none
             md:rounded-2xl md:inset-auto md:top-[68px] md:right-4 md:bottom-auto md:left-auto
             ${selectedId ? "md:w-[680px]" : "md:w-[320px]"} md:h-[500px]`}
           style={{ transition: "width 0.2s ease" }}
@@ -359,57 +404,95 @@ export default function NavChatWidget({
               </button>
             </div>
 
+            {/* Search Bar */}
+            <div className="px-3 py-2 border-b bg-white">
+              <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1.5">
+                <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search chats..."
+                  className="flex-1 bg-transparent text-xs outline-none placeholder:text-gray-400"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
             <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
               {conversations.length === 0 ? (
                 <div className="p-6 text-center text-sm text-gray-400">
                   No conversations yet.
                 </div>
               ) : (
-                conversations.map((conv) => {
-                  const count = unreadMap[conv.conversationId] ?? 0;
-                  return (
-                    <button
-                      key={conv.conversationId}
-                      onClick={() => openConversation(conv.conversationId)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left ${
-                        selectedId === conv.conversationId
-                          ? "bg-blue-50 border-l-2 border-blue-600"
-                          : ""
-                      }`}
-                    >
-                      <Avatar
-                        src={conv.otherUser.image}
-                        name={conv.otherUser.name}
-                        size={9}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className={`text-sm truncate ${
-                            count > 0
-                              ? "font-bold text-gray-900"
-                              : "font-medium text-gray-700"
-                          }`}
-                        >
-                          {conv.otherUser.name ?? "User"}
+                conversations
+                  .filter((conv) =>
+                    searchQuery.trim()
+                      ? (conv.otherUser.name ?? "")
+                          .toLowerCase()
+                          .includes(searchQuery.trim().toLowerCase())
+                      : true
+                  )
+                  .map((conv) => {
+                    const count = unreadMap[conv.conversationId] ?? 0;
+                    const isNewFollow = !conv.hasMessages;
+                    return (
+                      <button
+                        key={conv.conversationId}
+                        onClick={() => openConversation(conv.conversationId)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left ${
+                          selectedId === conv.conversationId
+                            ? "bg-blue-50 border-l-2 border-blue-600"
+                            : isNewFollow
+                            ? "bg-emerald-50/50"
+                            : ""
+                        }`}
+                      >
+                        <div className="relative">
+                          <Avatar
+                            src={conv.otherUser.image}
+                            name={conv.otherUser.name}
+                            size={9}
+                          />
+                          {isNewFollow && (
+                            <span className="absolute -bottom-0.5 -right-0.5 text-[10px] leading-none">
+                              👋
+                            </span>
+                          )}
                         </div>
-                        <div
-                          className={`text-xs truncate ${
-                            count > 0
-                              ? "text-gray-800 font-medium"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {conv.lastMessage?.content ?? "Start a conversation"}
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={`text-sm truncate ${
+                              count > 0
+                                ? "font-bold text-gray-900"
+                                : "font-medium text-gray-700"
+                            }`}
+                          >
+                            {conv.otherUser.name ?? "User"}
+                          </div>
+                          {isNewFollow ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                              Start Conversation
+                            </span>
+                          ) : (
+                            <div
+                              className={`text-xs truncate ${
+                                count > 0
+                                  ? "text-gray-800 font-medium"
+                                  : "text-gray-400"
+                              }`}
+                            >
+                              {conv.lastMessage?.content ?? "Start a conversation"}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      {count > 0 && (
-                        <span className="bg-blue-600 text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 flex items-center justify-center px-1 shrink-0">
-                          {count > 99 ? "99+" : count}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })
+                        {count > 0 && (
+                          <span className="bg-blue-600 text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 flex items-center justify-center px-1 shrink-0">
+                            {count > 99 ? "99+" : count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
               )}
             </div>
           </div>

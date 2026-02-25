@@ -47,49 +47,51 @@ export default async function VendorLayout({
 
   // 4. Render the Dashboard Layout
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR — hidden on mobile */}
-      <aside className="w-64 bg-white border-r max-md:hidden flex-shrink-0">
-        <div className="p-6">
-          <h2 className="font-bold text-xl mb-6">Seller Portal</h2>
-          <nav className="flex flex-col gap-2">
-            <Link href="/dashboard/profile">
-              <Button variant="ghost" className="w-full justify-start">
-                Profile
-              </Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button variant="ghost" className="w-full justify-start">
-                Overview
-              </Button>
-            </Link>
-            <Link href="/dashboard/gigs">
-              <Button variant="ghost" className="w-full justify-start">
-                My Gigs
-              </Button>
-            </Link>
-            <Link href="/dashboard/orders">
-              <Button variant="ghost" className="w-full justify-start">
-                Orders
-              </Button>
-            </Link>
-            <Link href="/">
-              <Button variant="outline" className="w-full justify-start mt-10">
-                Back to Home
-              </Button>
-            </Link>
-          </nav>
+    <>
+      <div className="flex h-[calc(100vh-4rem)] bg-gray-50 overflow-hidden">
+        {/* SIDEBAR — hidden on mobile */}
+        <aside className="w-64 bg-white border-r max-md:hidden flex-shrink-0 overflow-y-auto">
+          <div className="p-6">
+            <h2 className="font-bold text-xl mb-6">Seller Portal</h2>
+            <nav className="flex flex-col gap-2">
+              <Link href="/dashboard/profile">
+                <Button variant="ghost" className="w-full justify-start">
+                  Profile
+                </Button>
+              </Link>
+              <Link href="/dashboard">
+                <Button variant="ghost" className="w-full justify-start">
+                  Overview
+                </Button>
+              </Link>
+              <Link href="/dashboard/gigs">
+                <Button variant="ghost" className="w-full justify-start">
+                  My Gigs
+                </Button>
+              </Link>
+              <Link href="/dashboard/orders">
+                <Button variant="ghost" className="w-full justify-start">
+                  Orders
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" className="w-full justify-start mt-10">
+                  Back to Home
+                </Button>
+              </Link>
+            </nav>
 
-          <FollowersSidebar
-            initialFollowers={followerUsers.map((f) => f.follower)}
-          />
-        </div>
-      </aside>
+            <FollowersSidebar
+              initialFollowers={followerUsers.map((f) => f.follower)}
+            />
+          </div>
+        </aside>
 
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+        {/* MAIN CONTENT AREA */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">{children}</main>
+      </div>
 
-      {/* MOBILE BOTTOM NAV — only on small screens */}
+      {/* MOBILE BOTTOM NAV — outside flex container so it stays fixed */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-40 flex justify-around items-center h-16 px-2">
         <Link
           href="/dashboard"
@@ -195,6 +197,6 @@ export default async function VendorLayout({
           Home
         </Link>
       </nav>
-    </div>
+    </>
   );
 }
