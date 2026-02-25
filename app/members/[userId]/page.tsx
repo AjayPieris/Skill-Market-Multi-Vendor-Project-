@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MemberActions from "./member-actions";
 import ConnectionsSheet from "./connections-sheet";
 
@@ -60,7 +61,7 @@ export default async function MemberPage({
       },
     }),
     db.gig.findMany({
-      where: { vendorId: member.id, deletedAt: null }, // Exclude soft-deleted gigs
+      where: { vendorId: member.id, deletedAt: null },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -107,24 +108,29 @@ export default async function MemberPage({
   }));
 
   return (
-    <div className="container mx-auto px-4 py-10 space-y-8">
-      {/* Instagram-like profile header */}
-      <div className="flex items-start gap-6">
+    <div className="container mx-auto px-4 py-10 space-y-8 max-w-5xl">
+      {/* Instagram-style profile header */}
+      <div className="flex items-start gap-5 md:gap-8">
         <img
           src={member.image || "https://github.com/shadcn.png"}
           alt={member.name ?? "Member"}
-          className="w-20 h-20 rounded-full border"
+          className="w-24 h-24 md:w-28 md:h-28 rounded-full border object-cover"
         />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-3">
-            <h1 className="text-xl md:text-2xl font-bold truncate">
-              {member.name ?? "Unnamed"}
-            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-xl md:text-2xl font-bold truncate">
+                {member.name ?? "Unnamed"}
+              </h1>
+            </div>
 
-            <div className="flex items-center gap-6">
-              <div className="text-sm">
-                <span className="font-semibold">{gigs.length}</span> posts
+            <div className="flex items-center gap-8">
+              <div className="text-center">
+                <div className="text-base font-semibold leading-none">
+                  {gigs.length}
+                </div>
+                <div className="text-xs text-muted-foreground">posts</div>
               </div>
 
               <ConnectionsSheet
@@ -134,9 +140,11 @@ export default async function MemberPage({
               />
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              {professionalLabel(member.bio)}
-            </p>
+            <div className="space-y-1">
+              <div className="text-sm font-medium">
+                {professionalLabel(member.bio)}
+              </div>
+            </div>
 
             {!isSelf ? (
               <div className="pt-1">
@@ -150,42 +158,45 @@ export default async function MemberPage({
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="text-base font-semibold">Gigs ({gigs.length})</div>
-        <div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Gigs ({gigs.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
           {gigs.length === 0 ? (
             <div className="text-sm text-muted-foreground">No gigs yet.</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {gigs.map((gig) => (
                 <div key={gig.id} className="border rounded-lg overflow-hidden">
-                  <div className="aspect-video bg-muted overflow-hidden">
-                    <img
-                      src={gig.imageUrl}
-                      alt={gig.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <Link href={`/gigs/${gig.id}`} className="block">
+                    <div className="aspect-square bg-muted overflow-hidden">
+                      <img
+                        src={gig.imageUrl}
+                        alt={gig.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Link>
 
-                  <div className="p-3 space-y-2">
-                    <div className="font-medium line-clamp-2">{gig.title}</div>
-                    <div className="text-xs text-muted-foreground">
+                  <div className="p-2">
+                    <div className="text-sm font-medium line-clamp-1">{gig.title}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-1">
                       {gig.category} • ${gig.price}
                     </div>
-                    <Link href={`/gigs/${gig.id}`} className="inline-block">
-                      <Button size="sm">Book</Button>
-                    </Link>
+                    <div className="pt-2">
+                      <Link href={`/gigs/${gig.id}`} className="inline-block">
+                        <Button size="sm" className="h-8">Book</Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
-          <div className="pt-3 text-xs text-muted-foreground">
-            Total posts: {gigs.length}
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+

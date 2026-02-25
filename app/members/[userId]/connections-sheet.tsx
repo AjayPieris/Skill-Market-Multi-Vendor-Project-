@@ -202,7 +202,11 @@ export default function ConnectionsSheet({
       const data = (await res.json()) as { conversationId?: string };
       if (data?.conversationId) {
         setOpen(false);
-        router.push(`/inbox/${data.conversationId}`);
+        window.dispatchEvent(
+          new CustomEvent("open-chat-conversation", {
+            detail: { conversationId: data.conversationId },
+          }),
+        );
       }
     } finally {
       setBusyUserId(null);
@@ -213,24 +217,30 @@ export default function ConnectionsSheet({
     <>
       <button
         type="button"
-        className="text-sm cursor-pointer"
+        className="text-center cursor-pointer hover:opacity-90"
         onClick={() => {
           setTab("followers");
           setOpen(true);
         }}
       >
-        <span className="font-semibold">{followers.length}</span> followers
+        <div className="text-base font-semibold leading-none">
+          {followers.length}
+        </div>
+        <div className="text-xs text-muted-foreground">followers</div>
       </button>
 
       <button
         type="button"
-        className="text-sm cursor-pointer"
+        className="text-center cursor-pointer hover:opacity-90"
         onClick={() => {
           setTab("following");
           setOpen(true);
         }}
       >
-        <span className="font-semibold">{following.length}</span> following
+        <div className="text-base font-semibold leading-none">
+          {following.length}
+        </div>
+        <div className="text-xs text-muted-foreground">following</div>
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>

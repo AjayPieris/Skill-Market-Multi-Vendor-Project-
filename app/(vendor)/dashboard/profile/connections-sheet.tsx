@@ -164,7 +164,11 @@ export default function DashboardConnectionsSheet({
       const data = (await res.json()) as { conversationId?: string };
       if (data?.conversationId) {
         setOpen(false);
-        router.push(`/inbox/${data.conversationId}`);
+        window.dispatchEvent(
+          new CustomEvent("open-chat-conversation", {
+            detail: { conversationId: data.conversationId },
+          }),
+        );
       }
     } finally {
       setBusyUserId(null);

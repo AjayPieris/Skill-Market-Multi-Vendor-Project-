@@ -74,7 +74,11 @@ export default function MemberActions({
       if (!res.ok) return;
       const data = (await res.json()) as { conversationId?: string };
       if (data?.conversationId) {
-        router.push(`/inbox/${data.conversationId}`);
+        window.dispatchEvent(
+          new CustomEvent("open-chat-conversation", {
+            detail: { conversationId: data.conversationId },
+          }),
+        );
       }
     } finally {
       setBusy(false);
