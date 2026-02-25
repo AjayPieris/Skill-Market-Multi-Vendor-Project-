@@ -22,7 +22,6 @@ export default function GigCardWithDelete({
   price,
   imageUrl,
 }: GigCardProps) {
-  const [hovered, setHovered] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [deleted, setDeleted] = useState(false);
   const router = useRouter();
@@ -41,24 +40,20 @@ export default function GigCardWithDelete({
   return (
     <div
       className="relative border rounded-lg overflow-hidden group"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      {/* Delete button — appears on hover */}
-      {hovered && (
-        <button
-          onClick={handleDelete}
-          disabled={isPending}
-          className="absolute top-2 right-2 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-lg transition disabled:opacity-60"
-          title="Delete gig"
-        >
-          {isPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Trash2 className="w-3.5 h-3.5" />
-          )}
-        </button>
-      )}
+      {/* Delete button — always visible on mobile, hover-only on desktop */}
+      <button
+        onClick={handleDelete}
+        disabled={isPending}
+        className="absolute top-2 right-2 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-lg transition disabled:opacity-60 md:opacity-0 md:group-hover:opacity-100"
+        title="Delete gig"
+      >
+        {isPending ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Trash2 className="w-3.5 h-3.5" />
+        )}
+      </button>
 
       <Link href={`/gigs/${id}`} className="block">
         <div className="aspect-square bg-muted overflow-hidden">

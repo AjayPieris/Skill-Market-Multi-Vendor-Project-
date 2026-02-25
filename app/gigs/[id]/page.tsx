@@ -64,13 +64,17 @@ export default async function GigDetailPage({
             {gig.title}
           </h1>
           <div className="flex items-center gap-3">
-            <img
-              src={gig.vendor.image || "https://github.com/shadcn.png"}
-              alt={gig.vendor.name || "User"}
-              className="w-12 h-12 rounded-full border"
-            />
+            <Link href={`/members/${gig.vendor.id}`}>
+              <img
+                src={gig.vendor.image || "https://github.com/shadcn.png"}
+                alt={gig.vendor.name || "User"}
+                className="w-12 h-12 rounded-full border hover:ring-2 hover:ring-blue-400 transition"
+              />
+            </Link>
             <div>
-              <p className="font-bold text-sm">{gig.vendor.name}</p>
+              <Link href={`/members/${gig.vendor.id}`} className="font-bold text-sm hover:underline hover:text-blue-600 transition">
+                {gig.vendor.name}
+              </Link>
               <div className="flex items-center gap-1 text-yellow-500 text-xs">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
@@ -141,19 +145,19 @@ export default async function GigDetailPage({
                     className="border rounded-xl p-5 bg-white space-y-2 shadow-sm"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <Link href={`/members/${review.reviewer.id}`} className="flex items-center gap-2 hover:underline">
                         <img
                           src={
                             review.reviewer.image ||
                             "https://github.com/shadcn.png"
                           }
                           alt={review.reviewer.name || "User"}
-                          className="w-8 h-8 rounded-full border"
+                          className="w-8 h-8 rounded-full border hover:ring-2 hover:ring-blue-400 transition"
                         />
                         <span className="font-semibold text-sm">
                           {review.reviewer.name || "Anonymous"}
                         </span>
-                      </div>
+                      </Link>
                       <div className="flex items-center gap-0.5 text-yellow-500">
                         {[1, 2, 3, 4, 5].map((s) => (
                           <Star

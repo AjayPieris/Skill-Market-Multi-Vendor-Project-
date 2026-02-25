@@ -40,7 +40,7 @@ export default async function Navbar() {
   }
 
   return (
-    <nav className="border-b shadow-sm bg-white relative">
+    <nav className="border-b shadow-sm bg-white sticky top-0 z-50">
       <div className="flex h-16 items-center px-4 container mx-auto justify-between">
         {/* LOGO */}
         <Link href="/" className="font-bold text-2xl text-blue-600">

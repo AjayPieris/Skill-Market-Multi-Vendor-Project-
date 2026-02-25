@@ -48,7 +48,7 @@ export default async function VendorLayout({
   // 4. Render the Dashboard Layout
   return (
     <>
-      <div className="flex h-[calc(100vh-4rem)] bg-gray-50 overflow-hidden">
+      <div className="fixed inset-0 top-16 flex bg-gray-50">
         {/* SIDEBAR — hidden on mobile */}
         <aside className="w-64 bg-white border-r max-md:hidden flex-shrink-0 overflow-y-auto">
           <div className="p-6">

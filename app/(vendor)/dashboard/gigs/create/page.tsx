@@ -7,12 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createGigAction } from "@/app/actions/gig";
 import { useRouter } from "next/navigation";
 
 export default function CreateGigPage() {
   const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [category, setCategory] = useState<string>("Graphics & Design");
 
   async function handleSubmit(formData: FormData) {
     // We add the image URL to the form data manually
@@ -78,14 +86,25 @@ export default function CreateGigPage() {
 
           <div className="grid gap-2">
             <Label htmlFor="category">Category</Label>
-            <select
-              name="category"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="Design">Design</option>
-              <option value="Development">Development</option>
-              <option value="Marketing">Marketing</option>
-            </select>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Graphics & Design">Graphics & Design</SelectItem>
+                <SelectItem value="Programming & Tech">Programming & Tech</SelectItem>
+                <SelectItem value="Digital Marketing">Digital Marketing</SelectItem>
+                <SelectItem value="Video & Animation">Video & Animation</SelectItem>
+                <SelectItem value="Writing & Translation">Writing & Translation</SelectItem>
+                <SelectItem value="Music & Audio">Music & Audio</SelectItem>
+                <SelectItem value="Business">Business</SelectItem>
+                <SelectItem value="AI Services">AI Services</SelectItem>
+                <SelectItem value="Data">Data</SelectItem>
+                <SelectItem value="Photography">Photography</SelectItem>
+                <SelectItem value="Lifestyle">Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+            <input type="hidden" name="category" value={category} />
           </div>
 
           <div className="grid gap-2">

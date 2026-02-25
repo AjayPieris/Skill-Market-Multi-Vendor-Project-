@@ -61,69 +61,73 @@ export default async function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {gigs.map((gig) => (
-            <Link href={`/gigs/${gig.id}`} key={gig.id}>
-              <Card className="hover:shadow-lg transition cursor-pointer h-full ">
-                {/* Image Placeholder */}
-                <div className="h-48 w-full bg-gray-200 relative overflow-hidden rounded-t-lg">
-                  {/* We use a standard img tag for simplicity for now */}
+            <Card key={gig.id} className="hover:shadow-lg transition cursor-pointer h-full relative group">
+              {/* Full-card gig link using CSS overlay */}
+              <Link href={`/gigs/${gig.id}`} className="absolute inset-0 z-0" aria-label={gig.title} />
+
+              {/* Image */}
+              <div className="h-48 w-full bg-gray-200 relative overflow-hidden rounded-t-lg">
+                <img
+                  src={gig.imageUrl}
+                  alt={gig.title}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+
+              <CardHeader>
+                <CardTitle className="text-lg leading-tight">
+                  {gig.title}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent>
+                <p className="text-sm text-gray-500 font-medium">
+                  {gig.category}
+                </p>
+                <Link
+                  href={`/members/${gig.vendor.id}`}
+                  className="flex items-center gap-2 mt-2 relative z-10 hover:underline"
+                >
                   <img
-                    src={gig.imageUrl}
-                    alt={gig.title}
-                    className="object-cover w-full h-full"
+                    src={gig.vendor.image || ""}
+                    className="w-6 h-6 rounded-full"
+                    alt={gig.vendor.name ?? "Vendor"}
                   />
+                  <span className="text-xs text-gray-400">
+                    by {gig.vendor.name}
+                  </span>
+                </Link>
+              </CardContent>
+
+              <CardFooter className="border-t pt-4 flex justify-between items-center">
+                <span className="font-bold text-lg">${gig.price}</span>
+                <div className="flex flex-col items-end gap-0.5">
+                  {gig.reviews.length > 0 ? (
+                    <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
+                      <Star className="w-3 h-3 fill-current" />
+                      <span>
+                        {(
+                          gig.reviews.reduce((s, r) => s + r.rating, 0) /
+                          gig.reviews.length
+                        ).toFixed(1)}
+                      </span>
+                      <span className="text-gray-400 font-normal">
+                        ({gig.reviews.length})
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 text-gray-300 text-xs">
+                      <Star className="w-3 h-3" />
+                      <span>No ratings</span>
+                    </div>
+                  )}
+                  <span className="text-xs text-gray-400">
+                    {gig._count.orders} sale
+                    {gig._count.orders !== 1 ? "s" : ""}
+                  </span>
                 </div>
-
-                <CardHeader>
-                  <CardTitle className="text-lg leading-tight">
-                    {gig.title}
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <p className="text-sm text-gray-500 font-medium">
-                    {gig.category}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <img
-                      src={gig.vendor.image || ""}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-xs text-gray-400">
-                      by {gig.vendor.name}
-                    </span>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="border-t pt-4 flex justify-between items-center">
-                  <span className="font-bold text-lg">${gig.price}</span>
-                  <div className="flex flex-col items-end gap-0.5">
-                    {gig.reviews.length > 0 ? (
-                      <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span>
-                          {(
-                            gig.reviews.reduce((s, r) => s + r.rating, 0) /
-                            gig.reviews.length
-                          ).toFixed(1)}
-                        </span>
-                        <span className="text-gray-400 font-normal">
-                          ({gig.reviews.length})
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 text-gray-300 text-xs">
-                        <Star className="w-3 h-3" />
-                        <span>No ratings</span>
-                      </div>
-                    )}
-                    <span className="text-xs text-gray-400">
-                      {gig._count.orders} sale
-                      {gig._count.orders !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </CardFooter>
-              </Card>
-            </Link>
+              </CardFooter>
+            </Card>
           ))}
         </div>
       </section>
