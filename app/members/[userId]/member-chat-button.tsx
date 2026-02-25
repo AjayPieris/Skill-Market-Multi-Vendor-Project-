@@ -1,13 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 export default function MemberChatButton({ memberId }: { memberId: string }) {
-  const router = useRouter();
-
   async function startChat() {
     const res = await fetch("/api/conversations/start", {
       method: "POST",
@@ -18,7 +15,11 @@ export default function MemberChatButton({ memberId }: { memberId: string }) {
     if (!res.ok) return;
     const data = (await res.json()) as { conversationId?: string };
     if (data?.conversationId) {
-      router.push(`/inbox/${data.conversationId}`);
+      window.dispatchEvent(
+        new CustomEvent("open-chat-conversation", {
+          detail: { conversationId: data.conversationId },
+        }),
+      );
     }
   }
 

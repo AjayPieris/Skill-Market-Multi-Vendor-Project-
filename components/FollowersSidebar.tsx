@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,6 @@ export default function FollowersSidebar({
 }: {
   initialFollowers: SidebarUser[];
 }) {
-  const router = useRouter();
   const [followers, setFollowers] =
     React.useState<SidebarUser[]>(initialFollowers);
   const [open, setOpen] = React.useState(false);
@@ -97,7 +95,11 @@ export default function FollowersSidebar({
       if (!res.ok) return;
       const data = (await res.json()) as { conversationId?: string };
       if (data?.conversationId) {
-        router.push(`/inbox/${data.conversationId}`);
+        window.dispatchEvent(
+          new CustomEvent("open-chat-conversation", {
+            detail: { conversationId: data.conversationId },
+          }),
+        );
       }
     } finally {
       setStartingChat((prev) => ({ ...prev, [userId]: false }));

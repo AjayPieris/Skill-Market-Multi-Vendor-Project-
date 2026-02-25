@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Pusher from "pusher-js";
 import { MessageCircle, Send, X, ChevronLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 type NewNotificationPayload = {
   conversationId?: string;
@@ -112,7 +113,7 @@ export default function NavChatWidget({
     selectedIdRef.current = selectedId;
   }, [selectedId]);
 
-  // â”€â”€ ALWAYS-ON personal channel â€” works even when widget is closed â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ALWAYS-ON personal channel — works even when widget is closed ─────────
   useEffect(() => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
@@ -271,6 +272,21 @@ export default function NavChatWidget({
     },
     [currentUserId, unreadMap],
   );
+
+  // ── Listen for "open-chat-conversation" custom events ──────────────
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ conversationId: string }>).detail;
+      if (detail?.conversationId) {
+        setOpen(true);
+        fetchConversations();
+        // Small delay so conversations list loads first
+        setTimeout(() => openConversation(detail.conversationId), 300);
+      }
+    };
+    window.addEventListener("open-chat-conversation", handler);
+    return () => window.removeEventListener("open-chat-conversation", handler);
+  }, [openConversation, fetchConversations]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

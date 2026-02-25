@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import FollowersSidebar from "@/components/FollowersSidebar";
+import MobileFollowersSheet from "@/components/MobileFollowersSheet";
 
 export default async function VendorLayout({
   children,
@@ -170,6 +171,9 @@ export default async function VendorLayout({
           </svg>
           Profile
         </Link>
+        <MobileFollowersSheet
+          initialFollowers={followerUsers.map((f) => f.follower)}
+        />
         <Link
           href="/"
           className="flex flex-col items-center gap-0.5 text-xs text-gray-600 hover:text-blue-600 py-1 px-3"

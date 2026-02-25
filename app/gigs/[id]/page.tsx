@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Star } from "lucide-react";
 import { createCheckoutSessionAction } from "@/app/actions/order";
-import { startConversationAction } from "@/app/actions/conversation";
 import { currentUser } from "@clerk/nextjs/server";
+import ContactSellerButton from "@/components/ContactSellerButton";
 import Link from "next/link";
 import ReviewForm from "@/components/ReviewForm";
 
@@ -230,20 +230,7 @@ export default async function GigDetailPage({
                     Continue (${gig.price})
                   </Button>
                 </form>
-                <form
-                  action={async () => {
-                    "use server";
-                    await startConversationAction(gig.vendorId);
-                  }}
-                >
-                  <Button
-                    variant="outline"
-                    className="w-full mt-3"
-                    type="submit"
-                  >
-                    Contact Seller
-                  </Button>
-                </form>
+                <ContactSellerButton vendorId={gig.vendorId} />
               </>
             )}
           </div>
