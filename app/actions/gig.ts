@@ -5,7 +5,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { pusherServer } from "@/lib/pusher";
 
-export async function createGigAction(formData: FormData, imageUrl: string) {
+export async function createGigAction(formData: FormData, imageUrls: string[]) {
   const user = await currentUser();
   if (!user) throw new Error("Unauthorized");
 
@@ -25,6 +25,9 @@ export async function createGigAction(formData: FormData, imageUrl: string) {
 
   if (!dbUser) throw new Error("User not found in DB");
 
+  // First image is thumbnail
+  const imageUrl = imageUrls.length > 0 ? imageUrls[0] : "";
+
   // Create the Gig
   const newGig = await db.gig.create({
     data: {
@@ -32,6 +35,7 @@ export async function createGigAction(formData: FormData, imageUrl: string) {
       description,
       price,
       imageUrl,
+      images: imageUrls,
       category,
       vendorId: dbUser.id,
       packageDescription,
@@ -62,7 +66,7 @@ export async function createGigAction(formData: FormData, imageUrl: string) {
 export async function updateGigAction(
   gigId: string,
   formData: FormData,
-  imageUrl?: string
+  imageUrls?: string[]
 ) {
   const user = await currentUser();
   if (!user) throw new Error("Unauthorized");
@@ -82,6 +86,8 @@ export async function updateGigAction(
   if (!gig) throw new Error("Gig not found");
   if (gig.vendorId !== dbUser.id) throw new Error("Forbidden");
 
+  const imageUrl = imageUrls && imageUrls.length > 0 ? imageUrls[0] : undefined;
+
   await db.gig.update({
     where: { id: gigId },
     data: {
@@ -92,7 +98,7 @@ export async function updateGigAction(
       packageDescription,
       deliveryDays,
       revisions,
-      ...(imageUrl ? { imageUrl } : {}),
+      ...(imageUrls && imageUrls.length > 0 ? { imageUrl, images: imageUrls } : {}),
     },
   });
 

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MemberActions from "./member-actions";
 import ConnectionsSheet from "./connections-sheet";
+import HoverImageCarousel from "@/components/HoverImageCarousel"; // Imported image carousel
 
 function professionalLabel(bio: string | null) {
   const professional = (bio ?? "").trim();
@@ -69,6 +70,7 @@ export default async function MemberPage({
         category: true,
         price: true,
         imageUrl: true,
+        images: true,
         createdAt: true,
       },
     }),
@@ -171,22 +173,27 @@ export default async function MemberPage({
                 <div key={gig.id} className="border rounded-lg overflow-hidden">
                   <Link href={`/gigs/${gig.id}`} className="block">
                     <div className="aspect-square bg-muted overflow-hidden">
-                      <img
-                        src={gig.imageUrl}
+                      <HoverImageCarousel
+                        images={gig.images}
+                        fallbackImage={gig.imageUrl}
                         alt={gig.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full"
                       />
                     </div>
                   </Link>
 
                   <div className="p-2">
-                    <div className="text-sm font-medium line-clamp-1">{gig.title}</div>
+                    <div className="text-sm font-medium line-clamp-1">
+                      {gig.title}
+                    </div>
                     <div className="text-xs text-muted-foreground line-clamp-1">
                       {gig.category} • ${gig.price}
                     </div>
                     <div className="pt-2">
                       <Link href={`/gigs/${gig.id}`} className="inline-block">
-                        <Button size="sm" className="h-8">Book</Button>
+                        <Button size="sm" className="h-8">
+                          Book
+                        </Button>
                       </Link>
                     </div>
                   </div>
@@ -199,4 +206,3 @@ export default async function MemberPage({
     </div>
   );
 }
-

@@ -6,6 +6,7 @@ import { Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteGigAction } from "@/app/actions/gig";
 import { useRouter } from "next/navigation";
+import HoverImageCarousel from "./HoverImageCarousel"; // Imported image carousel
 
 interface GigCardProps {
   id: string;
@@ -13,6 +14,7 @@ interface GigCardProps {
   category: string;
   price: number;
   imageUrl: string;
+  images?: string[];
 }
 
 export default function GigCardWithDelete({
@@ -21,6 +23,7 @@ export default function GigCardWithDelete({
   category,
   price,
   imageUrl,
+  images = [],
 }: GigCardProps) {
   const [isPending, startTransition] = useTransition();
   const [deleted, setDeleted] = useState(false);
@@ -38,9 +41,7 @@ export default function GigCardWithDelete({
   if (deleted) return null;
 
   return (
-    <div
-      className="relative border rounded-lg overflow-hidden group"
-    >
+    <div className="relative border rounded-lg overflow-hidden group">
       {/* Delete button — always visible on mobile, hover-only on desktop */}
       <button
         onClick={handleDelete}
@@ -57,10 +58,11 @@ export default function GigCardWithDelete({
 
       <Link href={`/gigs/${id}`} className="block">
         <div className="aspect-square bg-muted overflow-hidden">
-          <img
-            src={imageUrl}
+          <HoverImageCarousel
+            images={images}
+            fallbackImage={imageUrl}
             alt={title}
-            className="w-full h-full object-cover"
+            className="w-full h-full"
           />
         </div>
       </Link>

@@ -7,6 +7,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import ContactSellerButton from "@/components/ContactSellerButton";
 import Link from "next/link";
 import ReviewForm from "@/components/ReviewForm";
+import GigImageGallery from "@/components/GigImageGallery";
 
 export default async function GigDetailPage({
   params,
@@ -72,7 +73,10 @@ export default async function GigDetailPage({
               />
             </Link>
             <div>
-              <Link href={`/members/${gig.vendor.id}`} className="font-bold text-sm hover:underline hover:text-blue-600 transition">
+              <Link
+                href={`/members/${gig.vendor.id}`}
+                className="font-bold text-sm hover:underline hover:text-blue-600 transition"
+              >
                 {gig.vendor.name}
               </Link>
               <div className="flex items-center gap-1 text-yellow-500 text-xs">
@@ -97,13 +101,13 @@ export default async function GigDetailPage({
               </div>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden border bg-gray-100">
-            <img
-              src={gig.imageUrl}
-              alt={gig.title}
-              className="w-full object-cover max-h-125"
-            />
-          </div>
+
+          <GigImageGallery
+            images={gig.images}
+            fallbackImage={gig.imageUrl}
+            title={gig.title}
+          />
+
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">About This Gig</h3>
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
@@ -145,7 +149,10 @@ export default async function GigDetailPage({
                     className="border rounded-xl p-5 bg-white space-y-2 shadow-sm"
                   >
                     <div className="flex items-center justify-between">
-                      <Link href={`/members/${review.reviewer.id}`} className="flex items-center gap-2 hover:underline">
+                      <Link
+                        href={`/members/${review.reviewer.id}`}
+                        className="flex items-center gap-2 hover:underline"
+                      >
                         <img
                           src={
                             review.reviewer.image ||

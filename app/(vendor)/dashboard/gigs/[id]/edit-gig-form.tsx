@@ -17,6 +17,7 @@ export default function EditGigForm({
   initialCategory,
   initialPrice,
   initialImageUrl,
+  initialImages,
   initialPackageDescription,
   initialDeliveryDays,
   initialRevisions,
@@ -27,23 +28,34 @@ export default function EditGigForm({
   initialCategory: string;
   initialPrice: number;
   initialImageUrl: string;
+  initialImages: string[];
   initialPackageDescription: string | null;
   initialDeliveryDays: number;
   initialRevisions: string;
 }) {
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState<string>(initialImageUrl);
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    initialImages?.length ? initialImages : [initialImageUrl].filter(Boolean),
+  );
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(formData: FormData) {
+    if (imageUrls.length === 0) {
+      alert("Please upload at least one image!");
+      return;
+    }
     setSaving(true);
     try {
-      await updateGigAction(gigId, formData, imageUrl);
+      await updateGigAction(gigId, formData, imageUrls);
       router.push("/dashboard/gigs");
     } finally {
       setSaving(false);
     }
   }
+
+  const removeImage = (urlToRemove: string) => {
+    setImageUrls((prev) => prev.filter((url) => url !== urlToRemove));
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -51,29 +63,35 @@ export default function EditGigForm({
 
       <div className="border p-6 rounded-lg bg-white shadow-sm space-y-6">
         <div>
-          <Label>Gig Thumbnail</Label>
-          {imageUrl ? (
-            <div className="relative mt-2">
-              <img
-                src={imageUrl}
-                alt="Upload"
-                className="w-full h-48 object-cover rounded-md"
-              />
-              <Button
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => setImageUrl("")}
-                type="button"
-              >
-                Remove
-              </Button>
-            </div>
-          ) : (
+          <Label>Gig Images (Up to 4)</Label>
+
+          <div className="grid grid-cols-2 gap-4 mt-2 mb-4">
+            {imageUrls.map((url, i) => (
+              <div key={url} className="relative">
+                <img
+                  src={url}
+                  alt={`Upload ${i + 1}`}
+                  className="w-full h-32 object-cover rounded-md border"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 h-7 px-2 text-xs"
+                  onClick={() => removeImage(url)}
+                  type="button"
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {imageUrls.length < 4 && (
             <UploadDropzone
               endpoint="gigImage"
               onClientUploadComplete={(res) => {
-                setImageUrl(res[0].url);
+                const newUrls = res.map((r) => r.url);
+                setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
               }}
               onUploadError={(error: Error) => {
                 alert(`ERROR! ${error.message}`);

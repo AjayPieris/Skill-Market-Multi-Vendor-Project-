@@ -87,6 +87,7 @@ model Gig {
   description        String
   price              Int
   imageUrl           String   // Thumbnail for the gig
+  images             String[] @default([]) // NEW: Extra images. Up to 4 total images can be uploaded
   category           String   // e.g. "Design", "Web Dev"
 
   // Standard Package details

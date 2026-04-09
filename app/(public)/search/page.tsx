@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card"; // UI card components
 import SearchInput from "@/components/SearchInput"; // Smart search input component
 import { Star } from "lucide-react";
+import HoverImageCarousel from "@/components/HoverImageCarousel"; // Imported hover image carousel
 
 export default async function SearchPage({
   searchParams,
@@ -84,10 +85,11 @@ export default async function SearchPage({
                     {/* Gig card */}
                     {/* Gig image */}
                     <div className="h-48 w-full bg-gray-200 relative overflow-hidden rounded-t-lg">
-                      <img
-                        src={gig.imageUrl} // Gig cover image URL
-                        alt={gig.title} // Accessibility text
-                        className="object-cover w-full h-full" // Image styling
+                      <HoverImageCarousel
+                        images={gig.images}
+                        fallbackImage={gig.imageUrl}
+                        alt={gig.title}
+                        className="w-full h-full"
                       />
                     </div>
                     <CardHeader>

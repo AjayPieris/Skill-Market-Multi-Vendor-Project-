@@ -19,20 +19,24 @@ import { useRouter } from "next/navigation";
 
 export default function CreateGigPage() {
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("Graphics & Design");
 
   async function handleSubmit(formData: FormData) {
-    // We add the image URL to the form data manually
-    if (!imageUrl) {
-      alert("Please upload an image first!");
+    // We add the image URLs to the form data manually
+    if (imageUrls.length === 0) {
+      alert("Please upload at least one image!");
       return;
     }
 
     // Call the server action
-    await createGigAction(formData, imageUrl);
+    await createGigAction(formData, imageUrls);
     router.push("/dashboard/gigs"); // Redirect back to list
   }
+
+  const removeImage = (urlToRemove: string) => {
+    setImageUrls((prev) => prev.filter((url) => url !== urlToRemove));
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -41,28 +45,35 @@ export default function CreateGigPage() {
       <div className="border p-6 rounded-lg bg-white shadow-sm space-y-6">
         {/* 1. IMAGE UPLOAD SECTION */}
         <div>
-          <Label>Gig Thumbnail</Label>
-          {imageUrl ? (
-            <div className="relative mt-2">
-              <img
-                src={imageUrl}
-                alt="Upload"
-                className="w-full h-48 object-cover rounded-md"
-              />
-              <Button
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => setImageUrl("")}
-              >
-                Remove
-              </Button>
-            </div>
-          ) : (
+          <Label>Gig Images (Up to 4)</Label>
+
+          <div className="grid grid-cols-2 gap-4 mt-2 mb-4">
+            {imageUrls.map((url, i) => (
+              <div key={url} className="relative">
+                <img
+                  src={url}
+                  alt={`Upload ${i + 1}`}
+                  className="w-full h-32 object-cover rounded-md border"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 h-7 px-2 text-xs"
+                  onClick={() => removeImage(url)}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {imageUrls.length < 4 && (
             <UploadDropzone
               endpoint="gigImage"
               onClientUploadComplete={(res) => {
-                setImageUrl(res[0].url);
+                const newUrls = res.map((r) => r.url);
+                setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
                 alert("Upload Completed");
               }}
               onUploadError={(error: Error) => {
@@ -91,11 +102,21 @@ export default function CreateGigPage() {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Graphics & Design">Graphics & Design</SelectItem>
-                <SelectItem value="Programming & Tech">Programming & Tech</SelectItem>
-                <SelectItem value="Digital Marketing">Digital Marketing</SelectItem>
-                <SelectItem value="Video & Animation">Video & Animation</SelectItem>
-                <SelectItem value="Writing & Translation">Writing & Translation</SelectItem>
+                <SelectItem value="Graphics & Design">
+                  Graphics & Design
+                </SelectItem>
+                <SelectItem value="Programming & Tech">
+                  Programming & Tech
+                </SelectItem>
+                <SelectItem value="Digital Marketing">
+                  Digital Marketing
+                </SelectItem>
+                <SelectItem value="Video & Animation">
+                  Video & Animation
+                </SelectItem>
+                <SelectItem value="Writing & Translation">
+                  Writing & Translation
+                </SelectItem>
                 <SelectItem value="Music & Audio">Music & Audio</SelectItem>
                 <SelectItem value="Business">Business</SelectItem>
                 <SelectItem value="AI Services">AI Services</SelectItem>
