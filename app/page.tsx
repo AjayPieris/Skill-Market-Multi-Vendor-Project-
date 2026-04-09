@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import { Star, Search, ArrowRight, BadgeCheck } from "lucide-react";
 
 // 2. This is an Async Server Component
 export default async function Home() {
@@ -25,32 +25,115 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
-      <section
-        className="relative text-white text-center overflow-hidden flex items-center justify-center min-h-[520px]"
-        style={{
-          backgroundImage: "url('/freelance.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        {/* dark overlay so text stays readable */}
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Find the perfect <span className="text-blue-400">freelance</span>{" "}
-            services
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-300 mb-8 px-4">
-            Get work done securely with our multi-vendor marketplace.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3 px-4">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <Link href="/search">Find Work</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="text-black bg-white">
-              <Link href="/become-seller">Become a Seller</Link>
-            </Button>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#f8f9fc] via-white to-[#f0f4ff] pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
+          
+          {/* Left Text Content */}
+          <div className="flex-1 w-full max-w-2xl flex flex-col justify-center text-center lg:text-left">
+            <h1 className="text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.1] animate-fade-in-up">
+              Your Vision,<br />
+              <span className="text-[#104bce]">Built by Experts.</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 animate-fade-in-up animation-delay-100">
+              Connect with the world's most talented digital architects, writers, and developers. Transform your boldest ideas into reality with high-end freelance expertise.
+            </p>
+
+            {/* Search Bar */}
+            <div className="relative mt-8 max-w-xl w-full mx-auto lg:mx-0 flex items-center bg-slate-100/80 backdrop-blur-sm border border-slate-200/50 rounded-full p-2 shadow-sm focus-within:ring-2 focus-within:ring-[#104bce]/30 transition-shadow animate-fade-in-up animation-delay-200">
+              <Search className="w-5 h-5 text-slate-400 ml-4 flex-shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Search for any service..." 
+                className="flex-1 bg-transparent border-none outline-none px-4 text-slate-700 placeholder:text-slate-400 text-base md:text-lg min-w-0"
+              />
+              <Button className="bg-[#2442af] hover:bg-[#1a3285] text-white rounded-full px-6 md:px-8 py-2 md:py-6 h-auto text-sm md:text-base font-semibold flex-shrink-0 transition-colors shadow-md">
+                Search
+              </Button>
+            </div>
+
+            {/* Popular tags */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 md:gap-3 mt-6 animate-fade-in-up animation-delay-300">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-2 md:mr-4">Popular:</span>
+              {['Logo Design', 'Web Development', 'Copywriting', 'AI Artist'].map((tag) => (
+                <span key={tag} className="px-4 py-1.5 bg-[#eef2fc] text-[#3451b2] font-semibold rounded-full text-[13px] whitespace-nowrap cursor-pointer hover:bg-[#dfe6f7] transition-colors">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 mt-10 animate-fade-in-up animation-delay-400">
+              <Button size="lg" className="bg-[#304bc0] hover:bg-[#253a99] text-white rounded-full px-8 py-6 text-base md:text-lg font-semibold shadow-lg shadow-[#304bc0]/20 hover:-translate-y-0.5 transition-all w-full sm:w-auto">
+                <Link href="/search" className="w-full">Find Talent</Link>
+              </Button>
+              <Link href="/become-seller" className="text-[#304bc0] font-bold text-base md:text-lg hover:text-[#1e307d] transition-colors flex items-center gap-2 group w-full sm:w-auto justify-center">
+                Join as a Pro <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Image Grid Content */}
+          <div className="flex-1 w-full max-w-2xl relative">
+            <div className="grid grid-cols-2 lg:grid-cols-12 gap-4 md:gap-6 min-h-[400px] md:min-h-[500px]">
+              
+              {/* Left Column in Grid (Sarah + Stats) */}
+              <div className="flex flex-col gap-4 md:gap-6 lg:col-span-7">
+                {/* Sarah Image */}
+                <div className="relative rounded-[24px] md:rounded-[32px] overflow-hidden bg-slate-200 shadow-xl flex-auto min-h-[200px] md:min-h-[300px] group animate-scale-in animation-delay-300">
+                  <img 
+                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80" 
+                    alt="Professional UX Architect" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale" 
+                  />
+                  {/* Subtle vignette/overlay for text readability */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  
+                  {/* Floating Info Card */}
+                  <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 bg-[#cacdc9] rounded-[16px] p-3 md:p-4 shadow-lg border border-white/20 transform transition-transform group-hover:-translate-y-1">
+                    <div className="font-bold text-base md:text-lg text-[#104bce]">Sarah J.</div>
+                    <div className="text-xs md:text-sm font-semibold text-slate-800 mt-0.5">Senior UX Architect • 4.9/5</div>
+                  </div>
+                </div>
+
+                {/* Stats Card */}
+                <div className="bg-[#eceff4] rounded-[24px] md:rounded-[32px] p-6 md:p-8 flex items-center justify-center shadow-inner relative overflow-hidden group animate-fade-in-up animation-delay-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex w-full items-center justify-between relative z-10">
+                    <div className="flex-1 text-center border-r-[1.5px] border-slate-300/60 pr-2">
+                       <div className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 tracking-tight">50k+</div>
+                       <div className="text-[9px] md:text-[11px] font-bold text-slate-500 mt-1 md:mt-2 uppercase tracking-[0.2em]">EXPERTS</div>
+                    </div>
+                    <div className="flex-1 text-center pl-2">
+                       <div className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 tracking-tight">98%</div>
+                       <div className="text-[9px] md:text-[11px] font-bold text-slate-500 mt-1 md:mt-2 uppercase tracking-[0.2em]">SUCCESS RATE</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column in Grid (Vetted + Man Image) */}
+              <div className="flex flex-col gap-4 md:gap-6 lg:col-span-5 md:mt-8 lg:mt-12">
+                {/* Vetted Pro Square */}
+                <div className="bg-[#0b5cff] rounded-[24px] md:rounded-[32px] aspect-square flex flex-col items-center justify-center text-white shadow-2xl shadow-[#106be8]/30 transform transition-transform hover:-translate-y-2 animate-scale-in animation-delay-400 relative overflow-hidden">
+                  {/* Decorative glow */}
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 blur-2xl rounded-full" />
+                  
+                  <BadgeCheck fill="white" className="w-12 h-12 md:w-16 md:h-16 mb-2 text-[#0b5cff] drop-shadow-md" />
+                  <span className="font-bold text-sm md:text-base tracking-wide">Vetted Pro</span>
+                </div>
+
+                {/* Vertical Man Image */}
+                <div className="relative rounded-[24px] md:rounded-[32px] overflow-hidden bg-slate-800 shadow-xl flex-auto min-h-[250px] md:min-h-[350px] group animate-fade-in-up animation-delay-600">
+                  <img 
+                    src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40?auto=format&fit=crop&q=80&w=800" 
+                    alt="Professional Designer" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
