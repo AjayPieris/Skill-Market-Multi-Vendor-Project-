@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Star, Search, ArrowRight, BadgeCheck, Heart } from "lucide-react";
 import HoverImageCarousel from "@/components/HoverImageCarousel"; // Added hover image carousel
+import TrustedCompaniesMarquee from "@/components/TrustedCompaniesMarquee";
 
 // 2. This is an Async Server Component
 export default async function Home() {
@@ -176,7 +177,7 @@ export default async function Home() {
       </section>
 
       {/* GIGS GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mb-20 bg-slate-50/50 rounded-[40px]">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-10 bg-slate-50/50 rounded-[40px]">
         <div className="flex flex-col mb-10">
           <div className="max-w-2xl mb-6">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2 leading-tight tracking-tight">
@@ -341,7 +342,7 @@ export default async function Home() {
         </div>
 
         {/* Load More Button */}
-        <div className="flex justify-center mt-12">
+        <div className="flex justify-center mt-6">
           <Link
             href="/search"
             className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-slate-800 text-sm font-semibold rounded-full transition-colors"
@@ -350,6 +351,9 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Trusted Companies right above footer */}
+      <TrustedCompaniesMarquee />
     </div>
   );
 }
