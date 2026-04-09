@@ -12,7 +12,6 @@ export default async function AdminLayout({
   const user = await currentUser();
   if (!user) return redirect("/sign-in");
 
-  // CHECK ROLE: Are they really an Admin?
   const dbUser = await db.user.findUnique({
     where: { clerkId: user.id },
   });
@@ -30,21 +29,35 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <nav className="border-b border-slate-800 p-4 flex flex-wrap gap-2 justify-between items-center bg-slate-900">
-        <h1 className="font-bold text-lg md:text-xl text-white">
-          Admin Control Center
-        </h1>
-        <div className="flex gap-4">
-          <Link href="/admin-panel" className="hover:text-blue-400 text-sm">
-            Overview
-          </Link>
-          <Link href="/" className="hover:text-blue-400 text-sm">
-            Exit to Website
-          </Link>
+    <div className="fixed inset-0 top-16 flex bg-gray-50">
+      {/* SIDEBAR — hidden on mobile */}
+      <aside className="w-64 bg-white border-r max-md:hidden flex-shrink-0 overflow-y-auto">
+        <div className="p-6">
+          <h2 className="font-bold text-xl mb-6">Admin Panel</h2>
+          <nav className="flex flex-col gap-2">
+            <Link href="/admin-panel">
+              <Button variant="ghost" className="w-full justify-start">
+                Overview
+              </Button>
+            </Link>
+            <Link href="/admin-panel/vendors">
+              <Button variant="ghost" className="w-full justify-start">
+                Vendors
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button variant="outline" className="w-full justify-start mt-10">
+                Back to Home
+              </Button>
+            </Link>
+          </nav>
         </div>
-      </nav>
-      <main className="p-4 md:p-8">{children}</main>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">
+        {children}
+      </main>
     </div>
   );
 }

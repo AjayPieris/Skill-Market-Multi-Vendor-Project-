@@ -32,6 +32,12 @@ export default async function VendorLayout({
     update: {}, // don't overwrite user-edited fields (name, image, bio)
   });
 
+  // 3. If this user is actually an admin, redirect them to their proper dashboard
+  if (ensuredDbUser.role === "admin") {
+    return redirect("/admin-panel");
+  }
+
+
   // People who follow ME
   const followerUsers = ensuredDbUser
     ? await db.follow.findMany({

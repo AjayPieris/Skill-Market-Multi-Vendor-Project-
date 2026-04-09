@@ -18,6 +18,7 @@ model User {
   image     String?  // Profile picture URL
   
   role      String   @default("customer") // "admin", "vendor", or "customer"
+  isBlocked Boolean  @default(false) // Admin can block users
 
   // Following / Followers
   following Follow[] @relation("FollowFollower")
