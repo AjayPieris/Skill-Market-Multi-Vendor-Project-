@@ -37,7 +37,7 @@ export default async function SearchPage({
   });
 
   return (
-    <div className="container mx-auto px-4 py-12 min-h-screen">
+    <div className="container mx-auto px-4 pt-32 pb-12 min-h-screen">
       {" "}
       {/* Page wrapper */}
       {/* SEARCH BAR SECTION */}

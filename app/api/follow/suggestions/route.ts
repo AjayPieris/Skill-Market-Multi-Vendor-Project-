@@ -21,6 +21,9 @@ export async function GET() {
       id: {
         notIn: Array.from(excludeIds),
       },
+      role: {
+        not: "admin", // Do not show admin users in suggestions
+      },
     },
     orderBy: { createdAt: "desc" },
     select: {
