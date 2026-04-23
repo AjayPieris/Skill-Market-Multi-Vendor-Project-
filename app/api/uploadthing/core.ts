@@ -7,7 +7,7 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many "endpoints" as you want
-  gigImage: f({ image: { maxFileSize: "4MB", maxFileCount: 4 } })
+  gigImage: f({ image: { maxFileSize: "8MB", maxFileCount: 4 } })
     // Middleware: Check if user is logged in BEFORE upload
     .middleware(async () => {
       const user = await currentUser();
@@ -19,7 +19,7 @@ export const ourFileRouter = {
       console.log("file url", file.url);
     }),
 
-  profileImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  profileImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(async () => {
       const user = await currentUser();
       if (!user) throw new Error("Unauthorized");

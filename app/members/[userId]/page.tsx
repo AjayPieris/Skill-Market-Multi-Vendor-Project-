@@ -110,7 +110,7 @@ export default async function MemberPage({
   }));
 
   return (
-    <div className="container mx-auto px-4 py-10 space-y-8 max-w-5xl">
+    <div className="container mx-auto px-4 pt-32 pb-10 space-y-8 max-w-5xl">
       {/* Instagram-style profile header */}
       <div className="flex items-start gap-5 md:gap-8">
         <img

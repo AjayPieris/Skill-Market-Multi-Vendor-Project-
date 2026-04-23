@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Star } from "lucide-react";
 import { createCheckoutSessionAction } from "@/app/actions/order";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import ContactSellerButton from "@/components/ContactSellerButton";
 import Link from "next/link";
 import ReviewForm from "@/components/ReviewForm";
@@ -15,8 +15,9 @@ export default async function GigDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const { userId } = await auth();
 
-  const gig = await db.gig.findUnique({
+  const gigPromise = db.gig.findUnique({
     where: { id },
     include: {
       vendor: true,
@@ -27,25 +28,35 @@ export default async function GigDetailPage({
     },
   });
 
+  const viewerDbUserPromise = userId
+    ? db.user.findUnique({
+        where: { clerkId: userId },
+        select: {
+          id: true,
+          orders: {
+            where: {
+              gigId: id,
+              review: null,
+            },
+            take: 1,
+            select: { id: true },
+          },
+        },
+      })
+    : Promise.resolve(null);
+
+  const [gig, viewerDbUser] = await Promise.all([
+    gigPromise,
+    viewerDbUserPromise,
+  ]);
+
   // Treat soft-deleted gigs as not found
   if (!gig || gig.deletedAt) return notFound();
 
-  const viewer = await currentUser();
-  const viewerDbUser = viewer
-    ? await db.user.findUnique({ where: { clerkId: viewer.id } })
-    : null;
   const isOwner = viewerDbUser?.id === gig.vendorId;
 
   // Find an order by this buyer for this gig that has no review yet
-  const unreviewedOrder = viewerDbUser
-    ? await db.order.findFirst({
-        where: {
-          gigId: gig.id,
-          buyerId: viewerDbUser.id,
-          review: null,
-        },
-      })
-    : null;
+  const unreviewedOrder = viewerDbUser?.orders?.[0] || null;
 
   const avgRating =
     gig.reviews.length > 0

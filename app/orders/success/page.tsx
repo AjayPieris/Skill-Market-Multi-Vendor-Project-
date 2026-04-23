@@ -22,7 +22,7 @@ export default async function SuccessPage({
   // If fulfillment failed, show a clear error so the user can report it
   if (!fulfilled && errorMsg) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 pt-32 pb-12">
         <div className="bg-red-100 p-6 rounded-full">
           <XCircle className="w-16 h-16 text-red-500" />
         </div>
@@ -47,13 +47,14 @@ export default async function SuccessPage({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 pt-32 pb-12">
       <div className="bg-green-100 p-6 rounded-full">
         <CheckCircle2 className="w-16 h-16 text-green-600" />
       </div>
       <h1 className="text-3xl font-bold">Order Placed Successfully!</h1>
       <p className="text-gray-600 max-w-md">
-        Payment confirmed. The freelancer has been notified. Please check your dashboard for updates.
+        Payment confirmed. The freelancer has been notified. Please check your
+        dashboard for updates.
       </p>
       <div className="flex gap-4">
         <Link href="/dashboard">

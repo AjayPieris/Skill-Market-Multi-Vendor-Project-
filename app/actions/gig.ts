@@ -15,7 +15,8 @@ export async function createGigAction(formData: FormData, imageUrls: string[]) {
   const category = formData.get("category") as string;
   const price = Number(formData.get("price"));
   const packageDescription = (formData.get("packageDescription") as string) || null;
-  const deliveryDays = Number(formData.get("deliveryDays")) || 3;
+  const rawDeliveryDays = formData.get("deliveryDays");
+  const deliveryDays = rawDeliveryDays && rawDeliveryDays !== "" ? Number(rawDeliveryDays) : 3;
   const revisions = (formData.get("revisions") as string) || "Unlimited";
 
   // Find the database user to link the gig
@@ -76,7 +77,8 @@ export async function updateGigAction(
   const category = formData.get("category") as string;
   const price = Number(formData.get("price"));
   const packageDescription = (formData.get("packageDescription") as string) || null;
-  const deliveryDays = Number(formData.get("deliveryDays")) || 3;
+  const rawDeliveryDays = formData.get("deliveryDays");
+  const deliveryDays = rawDeliveryDays && rawDeliveryDays !== "" ? Number(rawDeliveryDays) : 3;
   const revisions = (formData.get("revisions") as string) || "Unlimited";
 
   const dbUser = await db.user.findUnique({ where: { clerkId: user.id } });
