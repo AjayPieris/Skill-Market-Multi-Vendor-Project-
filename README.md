@@ -273,25 +273,6 @@ erDiagram
 
 ---
 
-## 📸 Screenshots
-
-<div align="center">
-
-| Homepage | Gig Detail |
-|---|---|
-| Hero section with search, curated gig grid, and trusted companies marquee | Full gig view with image gallery, package details, reviews, and contact seller |
-
-| Vendor Dashboard | Admin Panel |
-|---|---|
-| Revenue stats, gig management, order tracking, and follower sidebar | Platform-wide analytics, user management table, and vendor controls |
-
-| Real-Time Chat | Stories |
-|---|---|
-| Floating chat widget with conversation list, live messaging, and unread badges | Instagram-style story viewer with progress bars, replies, and view analytics |
-
-</div>
-
----
 
 ## 🧪 Available Scripts
 
